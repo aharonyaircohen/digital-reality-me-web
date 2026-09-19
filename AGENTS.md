@@ -14,6 +14,7 @@ The public site is:
 ## Architecture
 
 - `index.html` contains all profile text, social accounts, and link cards.
+- `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `assets/images/` contains the profile photo and link thumbnails.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
@@ -64,8 +65,11 @@ other part of the site uses that image.
 
 ## Updating the design
 
-- Preserve the calm blue/teal water style unless the owner asks for a redesign.
-- Change shared colors through the variables at the top of `styles.css`.
+- Preserve the calm blue water style unless the owner asks for a redesign.
+- The active theme is the `data-theme` value on `<html>` in `index.html`.
+- Available themes are `ocean-blue`, `sky`, and `deep-water`.
+- Change shared colors only through the variables in `themes.css`.
+- A new theme must define the same tokens and must not duplicate layout rules.
 - Keep the content column at or below 650px for readable mobile layouts.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.

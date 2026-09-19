@@ -6,11 +6,19 @@ import test from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
+const themes = await readFile(resolve(root, "themes.css"), "utf8");
 
-test("page declares Hebrew RTL and essential metadata", () => {
-  assert.match(html, /<html lang="he" dir="rtl">/);
+test("page declares Hebrew RTL, its theme, and essential metadata", () => {
+  assert.match(html, /<html lang="he" dir="rtl" data-theme="ocean-blue">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
+  assert.match(html, /<link rel="stylesheet" href="themes\.css">/);
+});
+
+test("all documented themes are defined", () => {
+  for (const theme of ["ocean-blue", "sky", "deep-water"]) {
+    assert.match(themes, new RegExp(`\\[data-theme="${theme}"\\]`));
+  }
 });
 
 test("external blank-target links are protected", () => {

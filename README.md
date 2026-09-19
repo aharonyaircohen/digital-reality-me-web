@@ -11,7 +11,8 @@ build process.
 ## Update the page
 
 - Profile text and links: edit `index.html`.
-- Colors, spacing, and layout: edit `styles.css`.
+- Theme colors: edit `themes.css` or change `data-theme` in `index.html`.
+- Spacing and layout: edit `styles.css`.
 - Photos and thumbnails: add files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.
 
