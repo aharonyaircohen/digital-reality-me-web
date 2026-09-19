@@ -9,13 +9,14 @@ const html = await readFile(resolve(root, "index.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
 const styles = await readFile(resolve(root, "styles.css"), "utf8");
 const script = await readFile(resolve(root, "script.js"), "utf8");
+const notFound = await readFile(resolve(root, "404.html"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
   assert.match(html, /<link rel="canonical" href="https:\/\/aharonyaircohen\.github\.io\/me\/">/);
-  assert.match(html, /<meta property="og:image" content="https:\/\/aharonyaircohen\.github\.io\/me\/assets\/images\/social-preview\.png">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/aharonyaircohen\.github\.io\/me\/assets\/images\/social-preview\.png\?v=[^"]+">/);
   assert.doesNotMatch(html, /my-linktree/);
   assert.match(html, /<link rel="stylesheet" href="themes\.css\?v=[^"]+">/);
   assert.match(html, /<link rel="stylesheet" href="styles\.css\?v=[^"]+">/);
@@ -91,7 +92,20 @@ test("course cards stay clean while smaller rows keep subtle chevrons", () => {
 test("mobile layout shows four articles before expanding", () => {
   assert.match(styles, /\.article-list\.is-collapsed \.media-row:nth-child\(n \+ 5\)/);
   assert.match(styles, /\.featured-card \{\s*height: 190px;/);
-  assert.match(styles, /object-position: center 38%/);
+  assert.match(styles, /--image-position-mobile/);
+});
+
+test("images support optional focal points without CSS edits", () => {
+  assert.match(styles, /object-position: var\(--image-position, center 45%\)/);
+  assert.match(styles, /object-position: var\(--image-position, center\)/);
+  assert.match(html, /--image-position-mobile: center 38%/);
+});
+
+test("custom 404 page returns visitors to the profile", () => {
+  assert.match(notFound, /<meta name="robots" content="noindex">/);
+  assert.match(notFound, /<html lang="he" dir="rtl" data-theme="deep-water">/);
+  assert.match(notFound, /href="\/me\/"/);
+  assert.match(notFound, /404/);
 });
 
 test("external blank-target links are protected", () => {

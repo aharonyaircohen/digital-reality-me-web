@@ -16,6 +16,8 @@ database, login, framework, or build process.
 - Spacing and layout: edit `styles.css`.
 - Article expansion behavior: edit `script.js`.
 - Hero and content images: add optimized WebP files under `assets/images/content/`.
+- Per-image crop: set `--image-position` on an image; the hero also supports
+  `--image-position-mobile`.
 - Profile and social-preview assets: update files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.
 

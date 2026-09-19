@@ -72,6 +72,9 @@ part of the site uses that image.
    should keep `alt=""` because the adjacent link text already describes them.
 6. When profile branding changes, update `social-preview.svg`, regenerate
    `social-preview.png` at 1200×630, and visually inspect the PNG.
+7. To adjust a crop without editing CSS, add
+   `style="--image-position: 50% 35%;"` to that `<img>`. The hero may also set
+   `--image-position-mobile` for a separate narrow-screen crop.
 
 ## Updating the design
 
@@ -95,6 +98,8 @@ part of the site uses that image.
   complete lists must remain available without JavaScript.
 - Preserve the mobile image framing rules: the hero must keep the face and bowl
   visible, featured cards stay 190px tall, and thumbnails remain center-cropped.
+- Keep `404.html` visually aligned with the active theme and retain its
+  `noindex` directive and link back to `/me/`.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.
 - Do not add "Powered by" branding or third-party scripts.

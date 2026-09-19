@@ -60,7 +60,7 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 43%;
+  object-position: var(--image-position, center 43%);
   transform: scale(1.025);
 }
 
@@ -204,7 +204,7 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 45%;
+  object-position: var(--image-position, center 45%);
   transition: transform 320ms ease, filter 200ms ease;
 }
 
@@ -296,7 +296,7 @@ img {
   height: 100%;
   min-height: 92px;
   object-fit: cover;
-  object-position: center;
+  object-position: var(--image-position, center);
 }
 
 .media-row > span:not(.row-arrow) {
@@ -458,6 +458,63 @@ footer p {
   letter-spacing: 0.05em;
 }
 
+body.error-page {
+  display: grid;
+  min-height: 100svh;
+  padding: 24px;
+  place-items: center;
+}
+
+.error-card {
+  width: min(100%, 620px);
+  padding: clamp(38px, 8vw, 72px) 28px;
+  color: #fff;
+  border: 1px solid rgba(220, 211, 255, 0.18);
+  border-radius: 30px;
+  background: var(--content-base);
+  box-shadow: var(--shadow-strong);
+  text-align: center;
+}
+
+.error-code {
+  margin: 0;
+  color: var(--accent);
+  font-size: clamp(4rem, 18vw, 7rem);
+  font-weight: 850;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.error-card h1 {
+  margin: 22px 0 8px;
+  font-size: clamp(1.7rem, 6vw, 2.45rem);
+}
+
+.error-card p:not(.error-code) {
+  margin: 0 auto;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.error-home {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 12px 22px;
+  color: #fff;
+  border: 1px solid rgba(220, 211, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(161, 133, 218, 0.2);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.error-home:hover,
+.error-home:focus-visible {
+  background: rgba(161, 133, 218, 0.36);
+  transform: translateY(-2px);
+}
+
 @media (min-width: 720px) {
   .article-list {
     grid-template-columns: 1fr 1fr;
@@ -504,7 +561,7 @@ footer p {
   }
 
   .hero-image {
-    object-position: center 38%;
+    object-position: var(--image-position-mobile, var(--image-position, center 38%));
     transform: scale(1.01);
   }
 
