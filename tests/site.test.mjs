@@ -9,7 +9,7 @@ const html = await readFile(resolve(root, "index.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
-  assert.match(html, /<html lang="he" dir="rtl" data-theme="ocean-blue">/);
+  assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
   assert.match(html, /<link rel="canonical" href="https:\/\/aharonyaircohen\.github\.io\/me\/">/);
@@ -20,9 +20,17 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
 });
 
 test("links are grouped for easier scanning", () => {
-  for (const section of ["קורסים ותכנים", "קהילה וסדנאות", "יצירת קשר"]) {
+  for (const section of ["קורסים וסדנאות", "קבוצות ומעגלים", "מאמרים — מים", "מאמרים — תודעה"]) {
     assert.match(html, new RegExp(section));
   }
+});
+
+test("content library keeps its complete structure", () => {
+  assert.equal((html.match(/class="featured-card"/g) ?? []).length, 4);
+  assert.equal((html.match(/class="media-row media-row--community"/g) ?? []).length, 2);
+  assert.equal((html.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
+  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 11);
+  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 10);
 });
 
 test("all documented themes are defined", () => {
@@ -33,32 +41,30 @@ test("all documented themes are defined", () => {
 
 test("external blank-target links are protected", () => {
   const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
-  assert.ok(blankLinks.length >= 8);
+  assert.ok(blankLinks.length >= 30);
   for (const link of blankLinks) {
     assert.match(link, /rel="noopener noreferrer"/);
   }
 });
 
 test("all local image files exist", async () => {
-  const imagePaths = [...html.matchAll(/(?:src|href)="(assets\/images\/[^"]+)"/g)]
-    .map((match) => match[1]);
-  assert.ok(imagePaths.length >= 7);
+  const imagePaths = [...new Set(
+    [...html.matchAll(/(?:src|href)="(assets\/images\/[^"]+)"/g)]
+      .map((match) => match[1]),
+  )];
+  assert.ok(imagePaths.length >= 30);
   await Promise.all(imagePaths.map((path) => access(resolve(root, path))));
   await access(resolve(root, "assets/images/social-preview.png"));
 });
 
 test("web images stay lightweight", async () => {
-  const webImages = [
-    "profile.webp",
-    "yama-course.webp",
-    "yama-support.webp",
-    "dehydration-course.webp",
-    "digital-reality.webp",
-    "contact.webp",
-  ];
+  const webImages = [...new Set(
+    [...html.matchAll(/src="(assets\/images\/[^"]+\.webp)"/g)]
+      .map((match) => match[1]),
+  )];
 
   for (const image of webImages) {
-    const details = await stat(resolve(root, "assets/images", image));
+    const details = await stat(resolve(root, image));
     assert.ok(details.size < 200_000, `${image} should stay below 200 KB`);
   }
 
@@ -66,10 +72,10 @@ test("web images stay lightweight", async () => {
   assert.ok(preview.size < 1_000_000, "social preview should stay below 1 MB");
 });
 
-test("all public cards have a real destination", () => {
-  const cards = [...html.matchAll(/<a class="link-card[^"]*" href="([^"]+)"/g)]
+test("all public content cards have a real destination", () => {
+  const cards = [...html.matchAll(/<a class="(?:featured-card|media-row[^"]*)" href="([^"]+)"/g)]
     .map((match) => match[1]);
-  assert.equal(cards.length, 6);
+  assert.equal(cards.length, 28);
   for (const destination of cards) {
     assert.match(destination, /^https:\/\//);
   }

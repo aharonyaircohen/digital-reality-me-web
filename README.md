@@ -1,8 +1,9 @@
-# My Linktree
+# Me
 
-A lightweight personal link page for Aharon Yair Cohen, hosted with GitHub
-Pages. It uses plain HTML and CSS, so there is no database, login, framework, or
-build process.
+A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
+Pages. It includes courses, communities, water articles, and consciousness
+articles. It uses plain HTML and CSS, so there is no database, login, framework,
+or build process.
 
 ## Public site
 
@@ -13,7 +14,8 @@ build process.
 - Profile text and links: edit `index.html`.
 - Theme colors: edit `themes.css` or change `data-theme` in `index.html`.
 - Spacing and layout: edit `styles.css`.
-- Photos and thumbnails: add files under `assets/images/`.
+- Hero and content images: add optimized WebP files under `assets/images/content/`.
+- Profile and social-preview assets: update files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.
 
 Run the local checks with:

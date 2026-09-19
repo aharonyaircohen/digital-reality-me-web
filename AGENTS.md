@@ -1,11 +1,12 @@
-# Agent instructions for My Linktree
+# Agent instructions for Me
 
 ## Purpose
 
-This repository is the source for Aharon Yair Cohen's public link page. It is a
-small, static GitHub Pages site. Keep it simple, fast, accessible, and easy to
-maintain without a database, login, framework, package installation, or build
-step.
+This repository is the source for Aharon Yair Cohen's public profile and content
+library. It is a static GitHub Pages site with a visual hero, featured courses,
+community links, and categorized article collections. Keep it fast, accessible,
+and easy to maintain without a database, login, framework, package installation,
+or build step.
 
 The public site is:
 
@@ -13,10 +14,12 @@ The public site is:
 
 ## Architecture
 
-- `index.html` contains all profile text, social accounts, and link cards.
+- `index.html` contains all profile text, social accounts, featured cards,
+  community links, and article collections.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
-- `assets/images/` contains the profile photo and link thumbnails.
+- `assets/images/content/` contains hero, course, community, and article images.
+- `assets/images/` also contains profile and social-sharing assets.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
 - `.github/workflows/check-links.yml` checks external destinations every week.
 - `tests/site.test.mjs` checks the important structure and local assets.
@@ -40,26 +43,28 @@ description, and Open Graph metadata in `<head>` when relevant.
 
 ### Add or update a link
 
-Each destination is one `<a class="link-card">` inside `.link-list` in
-`index.html`.
+Every destination is an anchor in `index.html`. Use `featured-card` for courses,
+`media-row--community` or `media-row--contact` for direct contact, and
+`media-row--water` or `media-row--mind` for articles.
 
-1. Copy an existing card.
+1. Copy an existing card from the same section and preserve its class.
 2. Change its `href`, title, subtitle, and image path.
 3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
 4. Use a short Hebrew title and optional short subtitle.
-5. Keep cards under the matching section label and keep the contact card last.
+5. Keep cards under the matching section and preserve the order: courses,
+   community, water articles, consciousness articles.
 
 ### Remove a link
 
-Delete the complete matching `link-card` element. Delete its image only when no
-other part of the site uses that image.
+Delete the complete matching anchor element. Delete its image only when no other
+part of the site uses that image.
 
 ### Change an image
 
 1. Put the new image in `assets/images/` with a short lowercase filename.
-2. Prefer WebP, JPEG, or PNG. Avoid files larger than 1 MB.
-3. Use a square image for the profile photo. Link thumbnails may be square or
-   landscape because CSS crops them safely.
+2. Use WebP for page images and keep each file below 200 KB.
+3. Hero and featured images may be large landscape or square images. Article
+   thumbnails may use any ratio because CSS crops them safely.
 4. Update the matching path in `index.html`.
 5. Keep meaningful `alt` text for the profile image. Decorative link thumbnails
    should keep `alt=""` because the adjacent link text already describes them.
@@ -68,14 +73,16 @@ other part of the site uses that image.
 
 ## Updating the design
 
-- Preserve the calm blue water style unless the owner asks for a redesign.
+- Preserve the dark blue content-library structure unless the owner asks for a
+  redesign.
 - The active theme is the `data-theme` value on `<html>` in `index.html`.
 - Available themes are `ocean-blue`, `sky`, and `deep-water`.
 - Change shared colors only through the variables in `themes.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
 - After changing `themes.css` or `styles.css`, update the `?v=` value on both
   stylesheet links in `index.html` so browsers do not show stale colors.
-- Keep the content column at or below 650px for readable mobile layouts.
+- Keep featured and community content at or below 620px. Article rows may use
+  two columns inside the 820px desktop shell.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.
 - Do not add "Powered by" branding or third-party scripts.
