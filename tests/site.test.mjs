@@ -58,6 +58,14 @@ test("desktop proportions match the reference layout", () => {
   assert.match(styles, /footer[\s\S]*?background: var\(--content-base\)/);
 });
 
+test("header, content, shell, and footer share one seamless background", () => {
+  assert.match(styles, /\.site-shell[\s\S]*?background: var\(--content-base\)/);
+  assert.match(styles, /\.hero[\s\S]*?background: var\(--content-base\)/);
+  assert.match(styles, /\.content-shell[\s\S]*?background: var\(--content-base\)/);
+  assert.match(styles, /footer[\s\S]*?background: var\(--content-base\)/);
+  assert.doesNotMatch(styles, /footer[\s\S]*?border-top:/);
+});
+
 test("external blank-target links are protected", () => {
   const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
   assert.ok(blankLinks.length >= 30);

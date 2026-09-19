@@ -34,7 +34,7 @@ img {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 32px;
-  background: var(--page-base);
+  background: var(--content-base);
   box-shadow: var(--shadow-strong);
 }
 
@@ -386,7 +386,6 @@ footer {
   margin: 44px -20px -32px;
   padding: 28px 20px 24px;
   color: var(--muted);
-  border-top: 1px solid rgba(220, 211, 255, 0.1);
   background: var(--content-base);
   text-align: center;
 }
