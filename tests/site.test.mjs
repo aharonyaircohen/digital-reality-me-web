@@ -49,6 +49,15 @@ test("deep-water uses the Digital Reality background palette", () => {
   assert.match(html, /<meta name="theme-color" content="#0a0f2a">/);
 });
 
+test("desktop proportions match the reference layout", () => {
+  assert.match(styles, /width: min\(100% - 40px, 760px\)/);
+  assert.match(styles, /padding: 36px 0/);
+  assert.match(styles, /width: min\(100%, 680px\)/);
+  assert.match(styles, /height: 240px/);
+  assert.match(styles, /\.hero[\s\S]*?background: var\(--content-base\)/);
+  assert.match(styles, /footer[\s\S]*?background: var\(--content-base\)/);
+});
+
 test("external blank-target links are protected", () => {
   const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
   assert.ok(blankLinks.length >= 30);
