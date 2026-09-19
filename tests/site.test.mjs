@@ -7,6 +7,7 @@ import test from "node:test";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
+const styles = await readFile(resolve(root, "styles.css"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
@@ -37,6 +38,15 @@ test("all documented themes are defined", () => {
   for (const theme of ["ocean-blue", "sky", "deep-water"]) {
     assert.match(themes, new RegExp(`\\[data-theme="${theme}"\\]`));
   }
+});
+
+test("deep-water uses the Digital Reality background palette", () => {
+  for (const color of ["#0a0f2a", "#020064", "#300060", "#6a00a8", "#b300b3"]) {
+    assert.match(themes, new RegExp(color));
+  }
+  assert.match(styles, /linear-gradient\(135deg, var\(--page-start\), var\(--page-middle\), var\(--page-end\)\)/);
+  assert.match(styles, /background: var\(--content-base\)/);
+  assert.match(html, /<meta name="theme-color" content="#0a0f2a">/);
 });
 
 test("external blank-target links are protected", () => {
