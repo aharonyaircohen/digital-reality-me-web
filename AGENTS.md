@@ -75,16 +75,26 @@ part of the site uses that image.
 
 ## Updating the design
 
-- Preserve the dark blue content-library structure unless the owner asks for a
-  redesign.
+- Preserve the purple outer gradient and deep-indigo content-library structure
+  unless the owner asks for a redesign.
 - The active theme is the `data-theme` value on `<html>` in `index.html`.
 - Available themes are `ocean-blue`, `sky`, and `deep-water`.
 - Change shared colors only through the variables in `themes.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
 - After changing `themes.css` or `styles.css`, update the `?v=` value on both
   stylesheet links in `index.html` so browsers do not show stale colors.
-- Keep featured and community content at or below 620px. Article rows may use
-  two columns inside the 820px desktop shell.
+- Keep the hero, content area, shell, and footer on the same `--content-base`
+  background. Do not reintroduce a separate header or footer color or divider.
+- Keep the desktop shell at 760px and its primary content at 680px unless a
+  verified layout problem requires a change.
+- Do not add a section tab bar or jump-navigation bar.
+- Course cards must not show arrows. Community, contact, and article rows may
+  keep their small, unboxed chevrons.
+- Keep article lists progressively collapsed through `script.js`: show six
+  articles on desktop and four on mobile, with “Show more” and “Show less”. The
+  complete lists must remain available without JavaScript.
+- Preserve the mobile image framing rules: the hero must keep the face and bowl
+  visible, featured cards stay 190px tall, and thumbnails remain center-cropped.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.
 - Do not add "Powered by" branding or third-party scripts.
