@@ -55,7 +55,6 @@ Every destination is an anchor in `index.html`. Use `featured-card` for courses,
 4. Use a short Hebrew title and optional short subtitle.
 5. Keep cards under the matching section and preserve the order: courses,
    community, water articles, consciousness articles.
-6. Keep each section's `id` aligned with its link in `.section-nav`.
 
 ### Remove a link
 

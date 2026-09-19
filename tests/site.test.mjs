@@ -75,15 +75,17 @@ test("social links use the shared polished icon set", () => {
   assert.equal((html.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
 });
 
-test("section navigation and expandable article lists stay available", () => {
-  for (const section of ["courses", "community", "water", "consciousness"]) {
-    assert.match(html, new RegExp(`href="#${section}"`));
-    assert.match(html, new RegExp(`id="${section}"`));
-  }
+test("expandable article lists stay available without extra tab navigation", () => {
+  assert.doesNotMatch(html, /class="section-nav"/);
   assert.equal((html.match(/data-collapsible/g) ?? []).length, 2);
   assert.equal((html.match(/class="show-more"/g) ?? []).length, 2);
   assert.match(script, /classList\.add\("is-collapsed"\)/);
   assert.match(script, /aria-expanded/);
+});
+
+test("course cards stay clean while smaller rows keep subtle chevrons", () => {
+  assert.doesNotMatch(html, /class="card-arrow"/);
+  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 24);
 });
 
 test("mobile layout shows four articles before expanding", () => {
