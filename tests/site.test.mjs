@@ -66,6 +66,14 @@ test("header, content, shell, and footer share one seamless background", () => {
   assert.doesNotMatch(styles, /footer[\s\S]*?border-top:/);
 });
 
+test("social links use the shared polished icon set", () => {
+  for (const icon of ["instagram", "facebook", "email"]) {
+    assert.match(html, new RegExp(`<symbol id="icon-${icon}"`));
+    assert.equal((html.match(new RegExp(`href="#icon-${icon}"`, "g")) ?? []).length, 2);
+  }
+  assert.equal((html.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
+});
+
 test("external blank-target links are protected", () => {
   const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
   assert.ok(blankLinks.length >= 30);
