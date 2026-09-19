@@ -1,6 +1,10 @@
 import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+
+const run = promisify(execFile);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
@@ -15,29 +19,30 @@ if (urls.length === 0) {
 const failures = [];
 
 for (const url of urls) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
-
   try {
-    const response = await fetch(url, {
-      redirect: "follow",
-      signal: controller.signal,
-      headers: { "user-agent": "me-page-link-checker/1.0" },
-    });
+    const { stdout } = await run("curl", [
+      "--location",
+      "--silent",
+      "--show-error",
+      "--output", "/dev/null",
+      "--write-out", "%{http_code}",
+      "--max-time", "20",
+      "--user-agent", "me-page-link-checker/1.0",
+      url,
+    ]);
+    const status = Number.parseInt(stdout.trim(), 10);
 
     // 401, 403, and 429 still prove that the destination exists. Fail only
     // missing pages and server errors.
-    if (response.status === 404 || response.status >= 500) {
-      failures.push(`${response.status} ${url}`);
-      console.error(`FAIL ${response.status} ${url}`);
+    if (status === 404 || status >= 500 || !Number.isInteger(status)) {
+      failures.push(`${status || "unknown"} ${url}`);
+      console.error(`FAIL ${status || "unknown"} ${url}`);
     } else {
-      console.log(`OK   ${response.status} ${url}`);
+      console.log(`OK   ${status} ${url}`);
     }
   } catch (error) {
-    failures.push(`${error.name}: ${url}`);
-    console.error(`FAIL ${error.name} ${url}`);
-  } finally {
-    clearTimeout(timeout);
+    failures.push(`${error.message}: ${url}`);
+    console.error(`FAIL ${error.message} ${url}`);
   }
 }
 
