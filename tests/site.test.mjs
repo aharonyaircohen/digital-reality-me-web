@@ -12,7 +12,8 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="ocean-blue">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
-  assert.match(html, /<link rel="stylesheet" href="themes\.css">/);
+  assert.match(html, /<link rel="stylesheet" href="themes\.css\?v=[^"]+">/);
+  assert.match(html, /<link rel="stylesheet" href="styles\.css\?v=[^"]+">/);
 });
 
 test("all documented themes are defined", () => {

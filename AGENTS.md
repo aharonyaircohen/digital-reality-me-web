@@ -70,6 +70,8 @@ other part of the site uses that image.
 - Available themes are `ocean-blue`, `sky`, and `deep-water`.
 - Change shared colors only through the variables in `themes.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
+- After changing `themes.css` or `styles.css`, update the `?v=` value on both
+  stylesheet links in `index.html` so browsers do not show stale colors.
 - Keep the content column at or below 650px for readable mobile layouts.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.
