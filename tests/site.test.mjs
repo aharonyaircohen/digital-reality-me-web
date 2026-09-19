@@ -8,6 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
 const styles = await readFile(resolve(root, "styles.css"), "utf8");
+const script = await readFile(resolve(root, "script.js"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
@@ -72,6 +73,23 @@ test("social links use the shared polished icon set", () => {
     assert.equal((html.match(new RegExp(`href="#icon-${icon}"`, "g")) ?? []).length, 2);
   }
   assert.equal((html.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
+});
+
+test("section navigation and expandable article lists stay available", () => {
+  for (const section of ["courses", "community", "water", "consciousness"]) {
+    assert.match(html, new RegExp(`href="#${section}"`));
+    assert.match(html, new RegExp(`id="${section}"`));
+  }
+  assert.equal((html.match(/data-collapsible/g) ?? []).length, 2);
+  assert.equal((html.match(/class="show-more"/g) ?? []).length, 2);
+  assert.match(script, /classList\.add\("is-collapsed"\)/);
+  assert.match(script, /aria-expanded/);
+});
+
+test("mobile layout shows four articles before expanding", () => {
+  assert.match(styles, /\.article-list\.is-collapsed \.media-row:nth-child\(n \+ 5\)/);
+  assert.match(styles, /\.featured-card \{\s*height: 190px;/);
+  assert.match(styles, /object-position: center 38%/);
 });
 
 test("external blank-target links are protected", () => {

@@ -2,8 +2,8 @@
 
 A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
 Pages. It includes courses, communities, water articles, and consciousness
-articles. It uses plain HTML and CSS, so there is no database, login, framework,
-or build process.
+articles. It uses plain HTML, CSS, and a small JavaScript file, so there is no
+database, login, framework, or build process.
 
 ## Public site
 
@@ -14,6 +14,7 @@ or build process.
 - Profile text and links: edit `index.html`.
 - Theme colors: edit `themes.css` or change `data-theme` in `index.html`.
 - Spacing and layout: edit `styles.css`.
+- Section navigation and article expansion behavior: edit `script.js`.
 - Hero and content images: add optimized WebP files under `assets/images/content/`.
 - Profile and social-preview assets: update files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.

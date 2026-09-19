@@ -25,8 +25,8 @@
 
     <title>יאיר אהרון כהן — מים, נשימה ותודעה</title>
     <link rel="icon" href="assets/images/profile.webp">
-    <link rel="stylesheet" href="themes.css?v=20260919-social-icons">
-    <link rel="stylesheet" href="styles.css?v=20260919-social-icons">
+    <link rel="stylesheet" href="themes.css?v=20260919-navigation">
+    <link rel="stylesheet" href="styles.css?v=20260919-navigation">
   </head>
   <body>
     <svg class="icon-sprite" aria-hidden="true">
@@ -64,7 +64,14 @@
       </header>
 
       <div class="content-shell">
-        <section class="content-section" aria-labelledby="courses-title">
+        <nav class="section-nav" aria-label="מעבר מהיר בין חלקי העמוד">
+          <a href="#courses">קורסים</a>
+          <a href="#community">קהילות</a>
+          <a href="#water">מים</a>
+          <a href="#consciousness">תודעה</a>
+        </nav>
+
+        <section class="content-section" id="courses" aria-labelledby="courses-title">
           <div class="section-heading">
             <p>ללמוד ולהתנסות</p>
             <h2 id="courses-title">קורסים וסדנאות</h2>
@@ -101,7 +108,7 @@
           </div>
         </section>
 
-        <section class="content-section" aria-labelledby="community-title">
+        <section class="content-section" id="community" aria-labelledby="community-title">
           <div class="section-heading">
             <p>להתחבר ולקבל תמיכה</p>
             <h2 id="community-title">קבוצות ומעגלים</h2>
@@ -128,13 +135,13 @@
           </div>
         </section>
 
-        <section class="content-section" aria-labelledby="water-title">
+        <section class="content-section" id="water" aria-labelledby="water-title">
           <div class="section-heading">
             <p>ידע מעשי ומעמיק</p>
             <h2 id="water-title">מאמרים — מים</h2>
           </div>
 
-          <div class="article-list">
+          <div class="article-list" id="water-list" data-collapsible>
             <a class="media-row media-row--water" href="https://sites.google.com/view/hydratingwaters" target="_blank" rel="noopener noreferrer">
               <img src="assets/images/content/hydrating-waters.webp" alt="" width="240" height="240" loading="lazy"><span><strong>שיטת מַיִם מַרְוִים</strong><small>גישה חדשה להבנת מים והרוויה</small></span><span class="row-arrow" aria-hidden="true">←</span>
             </a>
@@ -169,15 +176,16 @@
               <img src="assets/images/content/zeolite.webp" alt="" width="240" height="240" loading="lazy"><span><strong>זאוליט — מינרל לניקוי מתכות ורעלים מהגוף</strong></span><span class="row-arrow" aria-hidden="true">←</span>
             </a>
           </div>
+          <button class="show-more" type="button" aria-controls="water-list" aria-expanded="false" hidden>הצג מאמרים נוספים</button>
         </section>
 
-        <section class="content-section" aria-labelledby="consciousness-title">
+        <section class="content-section" id="consciousness" aria-labelledby="consciousness-title">
           <div class="section-heading">
             <p>להכיר את העולם הפנימי</p>
             <h2 id="consciousness-title">מאמרים — תודעה</h2>
           </div>
 
-          <div class="article-list">
+          <div class="article-list" id="consciousness-list" data-collapsible>
             <a class="media-row media-row--mind" href="https://thedigitalreality.net/?p=4667" target="_blank" rel="noopener noreferrer">
               <img src="assets/images/content/soul.webp" alt="" width="240" height="240" loading="lazy"><span><strong>הנפש — הנפשת התודעה לשני קטבים</strong></span><span class="row-arrow" aria-hidden="true">←</span>
             </a>
@@ -209,6 +217,7 @@
               <img src="assets/images/content/inner-peace-table.webp" alt="" width="240" height="240" loading="lazy"><span><strong>טבלה מורחבת — השקט הפנימי</strong></span><span class="row-arrow" aria-hidden="true">←</span>
             </a>
           </div>
+          <button class="show-more" type="button" aria-controls="consciousness-list" aria-expanded="false" hidden>הצג מאמרים נוספים</button>
         </section>
 
         <footer>
@@ -236,5 +245,6 @@
         "knowsAbout": ["מים", "נשימה", "תודעה", "קורסים דיגיטליים", "סדנאות"]
       }
     </script>
+    <script src="script.js"></script>
   </body>
 </html>

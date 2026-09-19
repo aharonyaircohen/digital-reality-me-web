@@ -18,6 +18,8 @@ The public site is:
   community links, and article collections.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
+- `script.js` progressively adds the article-list “Show more” behavior. Keep the
+  full article lists visible when JavaScript is unavailable.
 - `assets/images/content/` contains hero, course, community, and article images.
 - `assets/images/` also contains profile and social-sharing assets.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
@@ -53,6 +55,7 @@ Every destination is an anchor in `index.html`. Use `featured-card` for courses,
 4. Use a short Hebrew title and optional short subtitle.
 5. Keep cards under the matching section and preserve the order: courses,
    community, water articles, consciousness articles.
+6. Keep each section's `id` aligned with its link in `.section-nav`.
 
 ### Remove a link
 
