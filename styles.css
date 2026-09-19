@@ -178,6 +178,19 @@ h1 {
   gap: 13px;
 }
 
+.section-label {
+  margin: 0 8px -2px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+.section-label--spaced {
+  margin-top: 12px;
+}
+
 .link-card {
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr) 32px;

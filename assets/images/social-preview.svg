@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="0.48" stop-color="#cfe5ff"/>
+      <stop offset="1" stop-color="#70aef8"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="avatarClip">
+      <circle cx="920" cy="275" r="142"/>
+    </clipPath>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#1e40af" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="155" cy="90" r="260" fill="url(#glow)"/>
+  <circle cx="1105" cy="-45" r="265" fill="none" stroke="#ffffff" stroke-opacity="0.48" stroke-width="2"/>
+  <circle cx="1105" cy="-45" r="205" fill="none" stroke="#ffffff" stroke-opacity="0.27" stroke-width="2"/>
+  <circle cx="1020" cy="555" r="105" fill="#ffffff" fill-opacity="0.16"/>
+
+  <circle cx="920" cy="275" r="153" fill="#ffffff" fill-opacity="0.92" filter="url(#shadow)"/>
+  <image href="profile.webp" x="778" y="133" width="284" height="284" preserveAspectRatio="xMidYMid slice" clip-path="url(#avatarClip)"/>
+
+  <g fill="#102a56" text-anchor="end" font-family="Arial, sans-serif" direction="rtl">
+    <text x="650" y="245" font-size="66" font-weight="700">יאיר אהרון כהן</text>
+    <text x="650" y="315" font-size="30" font-weight="600" fill="#1748b5">מים · נשימה · תודעה</text>
+    <text x="650" y="372" font-size="27" fill="#526f98">קורסים דיגיטליים, סדנאות ותהליכי ריפוי</text>
+  </g>
+
+  <rect x="125" y="455" width="530" height="3" rx="2" fill="#2563eb" fill-opacity="0.3"/>
+  <text x="650" y="505" fill="#1748b5" text-anchor="end" font-family="Arial, sans-serif" font-size="21" font-weight="600">aharonyaircohen.github.io/me</text>
+</svg>

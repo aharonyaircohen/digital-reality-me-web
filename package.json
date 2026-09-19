@@ -1,9 +1,10 @@
 {
-  "name": "my-linktree",
+  "name": "me",
   "version": "1.0.0",
   "private": true,
   "description": "Aharon Yair Cohen's static personal link page",
   "scripts": {
-    "test": "node --test tests/site.test.mjs"
+    "test": "node --test tests/site.test.mjs",
+    "check:links": "node tests/check-links.mjs"
   }
 }

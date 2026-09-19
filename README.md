@@ -6,7 +6,7 @@ build process.
 
 ## Public site
 
-<https://aharonyaircohen.github.io/my-linktree/>
+<https://aharonyaircohen.github.io/me/>
 
 ## Update the page
 
@@ -20,6 +20,7 @@ Run the local checks with:
 
 ```bash
 npm test
+npm run check:links
 ```
 
 You can preview the site by opening `index.html` directly or by running:

@@ -9,7 +9,7 @@ step.
 
 The public site is:
 
-`https://aharonyaircohen.github.io/my-linktree/`
+`https://aharonyaircohen.github.io/me/`
 
 ## Architecture
 
@@ -18,6 +18,7 @@ The public site is:
 - `styles.css` contains the complete visual design.
 - `assets/images/` contains the profile photo and link thumbnails.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
+- `.github/workflows/check-links.yml` checks external destinations every week.
 - `tests/site.test.mjs` checks the important structure and local assets.
 
 Do not add a CMS, backend, database, analytics tracker, UI framework, or build
@@ -46,7 +47,7 @@ Each destination is one `<a class="link-card">` inside `.link-list` in
 2. Change its `href`, title, subtitle, and image path.
 3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
 4. Use a short Hebrew title and optional short subtitle.
-5. Keep the contact card last.
+5. Keep cards under the matching section label and keep the contact card last.
 
 ### Remove a link
 
@@ -62,6 +63,8 @@ other part of the site uses that image.
 4. Update the matching path in `index.html`.
 5. Keep meaningful `alt` text for the profile image. Decorative link thumbnails
    should keep `alt=""` because the adjacent link text already describes them.
+6. When profile branding changes, update `social-preview.svg`, regenerate
+   `social-preview.png` at 1200×630, and visually inspect the PNG.
 
 ## Updating the design
 
@@ -86,6 +89,7 @@ Before committing:
 3. Check every changed external link.
 4. Confirm every local image path loads.
 5. Confirm Hebrew text still reads right-to-left.
+6. Run `npm run check:links` when link destinations change.
 
 After pushing to `main`, wait for the `Deploy GitHub Pages` workflow and verify
 the public URL. A change is not fully complete until the live page loads.
