@@ -13,6 +13,9 @@ The public site is:
 `https://me.thedigitalreality.app/`
 
 GitHub Pages remains the host. Vercel provides DNS for the custom domain only.
+Read `DEPLOYMENT.md` before changing hosting, DNS, or HTTPS settings. It includes
+the current deployment process, certificate troubleshooting, and optional Vercel
+migration instructions. Documenting Vercel does not authorize switching hosts.
 
 ## Architecture
 
@@ -101,7 +104,7 @@ part of the site uses that image.
 - Preserve the mobile image framing rules: the hero must keep the face and bowl
   visible, featured cards stay 190px tall, and thumbnails remain center-cropped.
 - Keep `404.html` visually aligned with the active theme and retain its
-  `noindex` directive and link back to `/me/`.
+  `noindex` directive and link back to `/` on the custom domain.
 - Keep visible keyboard focus styles and reduced-motion support.
 - Check both narrow mobile width and desktop width before publishing.
 - Do not add "Powered by" branding or third-party scripts.
@@ -119,6 +122,12 @@ Before committing:
 
 After pushing to `main`, wait for the `Deploy GitHub Pages` workflow and verify
 the public URL. A change is not fully complete until the live page loads.
+For deployment or certificate changes, verify HTTPS without bypassing certificate
+validation, then open the public URL in a real browser. For visible changes, check
+desktop and mobile layouts, images, both article expansion controls, and a
+representative destination link. Report checks that could not run; an HTTP 200
+alone is not a browser or visual test. Documentation-only changes require
+`npm test` and `git diff --check`, but no new visual checks.
 
 ## Git rules
 
