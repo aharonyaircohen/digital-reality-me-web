@@ -15,8 +15,8 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/aharonyaircohen\.github\.io\/me\/">/);
-  assert.match(html, /<meta property="og:image" content="https:\/\/aharonyaircohen\.github\.io\/me\/assets\/images\/social-preview\.png\?v=[^"]+">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/me\.thedigitalreality\.app\/assets\/images\/social-preview\.png\?v=[^"]+">/);
   assert.doesNotMatch(html, /my-linktree/);
   assert.match(html, /<link rel="stylesheet" href="themes\.css\?v=[^"]+">/);
   assert.match(html, /<link rel="stylesheet" href="styles\.css\?v=[^"]+">/);
@@ -104,8 +104,14 @@ test("images support optional focal points without CSS edits", () => {
 test("custom 404 page returns visitors to the profile", () => {
   assert.match(notFound, /<meta name="robots" content="noindex">/);
   assert.match(notFound, /<html lang="he" dir="rtl" data-theme="deep-water">/);
-  assert.match(notFound, /href="\/me\/"/);
+  assert.match(notFound, /href="\/"/);
   assert.match(notFound, /404/);
+});
+
+test("custom domain configuration is present", async () => {
+  const cname = await readFile(resolve(root, "CNAME"), "utf8");
+  assert.equal(cname.trim(), "me.thedigitalreality.app");
+  assert.doesNotMatch(html, /aharonyaircohen\.github\.io\/me/);
 });
 
 test("external blank-target links are protected", () => {

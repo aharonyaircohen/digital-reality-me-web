@@ -7,7 +7,7 @@ database, login, framework, or build process.
 
 ## Public site
 
-<https://aharonyaircohen.github.io/me/>
+<https://me.thedigitalreality.app/>
 
 ## Update the page
 

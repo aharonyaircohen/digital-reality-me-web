@@ -10,7 +10,9 @@ or build step.
 
 The public site is:
 
-`https://aharonyaircohen.github.io/me/`
+`https://me.thedigitalreality.app/`
+
+GitHub Pages remains the host. Vercel provides DNS for the custom domain only.
 
 ## Architecture
 
