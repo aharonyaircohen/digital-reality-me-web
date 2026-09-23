@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -10,6 +10,7 @@ const themes = await readFile(resolve(root, "themes.css"), "utf8");
 const styles = await readFile(resolve(root, "styles.css"), "utf8");
 const script = await readFile(resolve(root, "script.js"), "utf8");
 const notFound = await readFile(resolve(root, "404.html"), "utf8");
+const postsIndex = await readFile(resolve(root, "posts/index.html"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
@@ -86,7 +87,7 @@ test("expandable article lists stay available without extra tab navigation", () 
 
 test("course cards stay clean while smaller rows keep subtle chevrons", () => {
   assert.doesNotMatch(html, /class="card-arrow"/);
-  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 24);
+  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 25);
 });
 
 test("mobile layout shows four articles before expanding", () => {
@@ -153,5 +154,43 @@ test("all public content cards have a real destination", () => {
   assert.equal(cards.length, 28);
   for (const destination of cards) {
     assert.match(destination, /^https:\/\//);
+  }
+});
+
+test("the home page opens the published post archive", () => {
+  assert.match(html, /<a class="posts-entry" href="posts\/">/);
+  assert.match(postsIndex, /<html lang="he" dir="rtl" data-theme="deep-water">/);
+  assert.match(postsIndex, /aria-label="קטגוריות פוסטים"/);
+  for (const category of ["מים", "תודעה", "בריאות", "הזנה", "טיפול עצמי", "Meditation", "Nutrition", "Self-Care", "ללא קטגוריה"]) {
+    assert.match(postsIndex, new RegExp(`<h2[^>]*>${category}</h2>`));
+  }
+});
+
+test("the static archive contains complete published posts and no pending posts", async () => {
+  const ids = [...postsIndex.matchAll(/class="post-index-item" href="\.\/(\d+)\/"/g)]
+    .map((match) => match[1]);
+  assert.equal(ids.length, 33);
+  assert.equal(new Set(ids).size, 33);
+  for (const pendingId of ["1177", "1178", "1179"]) {
+    assert.ok(!ids.includes(pendingId));
+    await assert.rejects(access(resolve(root, "posts", pendingId, "index.html")));
+  }
+
+  const directories = (await readdir(resolve(root, "posts"), { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  assert.deepEqual(directories.sort(), [...ids].sort());
+
+  for (const id of ids) {
+    const post = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
+    assert.match(post, /<article class="post-content"/);
+    assert.match(post, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/posts\/\d+\/">/);
+    assert.ok(post.length > 1000, `Post ${id} should contain the full article`);
+    for (const [, asset] of post.matchAll(/(?:src|href)="\.\/media\/([^"]+)"/g)) {
+      const path = resolve(root, "posts", id, "media", asset);
+      await access(path);
+      if (asset.endsWith(".webp")) {
+        assert.ok((await stat(path)).size < 200_000, `${id}/${asset} should stay below 200 KB`);
+      }
+    }
   }
 });

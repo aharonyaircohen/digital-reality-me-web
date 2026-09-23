@@ -20,7 +20,9 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 ## Architecture
 
 - `index.html` contains all profile text, social accounts, featured cards,
-  community links, and article collections.
+  community links, article collections, and the post archive link.
+- `posts/index.html` and `posts/<wordpress-id>/index.html` are a checked-in,
+  static snapshot of published posts from `content-library/posts/`.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `script.js` progressively adds the article-list “Show more” behavior. Keep the
@@ -65,6 +67,20 @@ Every destination is an anchor in `index.html`. Use `featured-card` for courses,
 
 Delete the complete matching anchor element. Delete its image only when no other
 part of the site uses that image.
+
+### Refresh the post archive
+
+- Read each source post's `metadata.json` and include only `status: "publish"`.
+  Never copy pending or draft post content into this public repository.
+- Preserve the source `categories` labels, including `ללא קטגוריה`, and keep
+  the archive grouped by category. Post links use their WordPress IDs.
+- Use each published post's `source.html` for its full text. Copy only media it
+  references; convert inline images to lightweight WebP files and update their
+  paths. Keep linked PDFs available beside the post.
+- Source post 4564 has an empty title in metadata. Its archive title is
+  `טבלה מורחבת — השקט הפנימי` until the source supplies one.
+- Run the archive regression test and inspect the archive plus representative
+  Hebrew, English, image, and table posts in a browser before publishing.
 
 ### Change an image
 
