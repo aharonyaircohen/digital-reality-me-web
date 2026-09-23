@@ -2,8 +2,7 @@
 
 ## Current setup
 
-- Repository: `aharonyaircohen/digital-reality-me-web`, production branch
-  `main`.
+- Repository: `aharonyaircohen/digital-reality-me-web`, production branch `main`.
 - Public URL: <https://me.thedigitalreality.app/>.
 - Hosting: GitHub Pages, using `.github/workflows/pages.yml`.
 - DNS provider: Vercel, for `thedigitalreality.app`.
@@ -22,7 +21,7 @@ does not configure it.
 2. Commit and push to `main`.
 3. Wait for the **Deploy GitHub Pages** workflow to succeed.
 4. Verify the public URL over HTTPS and open it in a browser. For page changes,
-   inspect desktop and mobile, images, article expand/collapse, and changed links.
+   inspect desktop and mobile, images, article pages and category groups, and changed links.
 5. Report any unverified checks explicitly.
 
 ## Roll back a site update
@@ -70,7 +69,7 @@ This restart resolved the mismatch on September 20, 2026. HTTPS returned 200,
 HTTP redirected to HTTPS, and Chrome opened the page without a privacy warning.
 That is historical evidence, not a substitute for checking current status.
 
-The default `github.io/me/` address may redirect to the custom domain; do not
+The default `github.io/digital-reality-me-web/` address may redirect to the custom domain; do not
 present it as an independent backup without testing it.
 
 References: [GitHub HTTPS troubleshooting](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https),
@@ -81,11 +80,10 @@ References: [GitHub HTTPS troubleshooting](https://docs.github.com/en/pages/gett
 This migration guide has not been tested for this repository. Use it only when
 the owner requests Vercel hosting, and verify the current linked vendor guidance.
 
-1. Import `aharonyaircohen/digital-reality-me-web`, use production branch
-   `main`, and configure a static deployment: **Other** preset, repository root, no install/build
+1. Import `aharonyaircohen/digital-reality-me-web`, use production branch `main`, and configure a
+   static deployment: **Other** preset, repository root, no install/build
    commands, output directory `.`.
-2. Test the Vercel URL before changing DNS: desktop/mobile, assets, article
-   controls, and custom 404 behavior. Keep the working Pages deployment available.
+2. Test the Vercel URL before changing DNS: desktop/mobile, assets, article pages, and custom 404 behavior. Keep the working Pages deployment available.
 3. Add the custom domain and replace only the `me` CNAME with the target Vercel
    supplies. Verify certificate validity, HTTPS redirection, and browser loading.
 4. Verify automatic Git deployments, update these docs with the actual setup,
