@@ -85,12 +85,16 @@ part of the site uses that image.
 
 - Preserve the purple outer gradient and deep-indigo content-library structure
   unless the owner asks for a redesign.
-- The active theme is the `data-theme` value on `<html>` in `index.html`.
+- Set the same active `data-theme` on `<html>` in `index.html` and `404.html`.
+  Review each page's `theme-color` metadata when changing themes; update sharing
+  artwork when the branding changes. Update tests that intentionally assert the
+  active theme or palette to match the approved change.
 - Available themes are `ocean-blue`, `sky`, and `deep-water`.
 - Change shared colors only through the variables in `themes.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
 - After changing `themes.css` or `styles.css`, update the `?v=` value on both
-  stylesheet links in `index.html` so browsers do not show stale colors.
+  stylesheet links in both `index.html` and `404.html` so browsers do not show
+  stale colors. Use matching versions for the same asset across both pages.
 - Keep the hero, content area, shell, and footer on the same `--content-base`
   background. Do not reintroduce a separate header or footer color or divider.
 - Keep the desktop shell at 760px and its primary content at 680px unless a
@@ -114,7 +118,9 @@ part of the site uses that image.
 Before committing:
 
 1. Run `npm test`.
-2. Open `index.html` locally and inspect it at mobile and desktop widths.
+2. Use the local HTTP server described in `README.md`; inspect the homepage and
+   `/404.html` at mobile and desktop widths. Verify missing-path 404 behavior on
+   the deployed site, since the Python server uses its own error page.
 3. Check every changed external link.
 4. Confirm every local image path loads.
 5. Confirm Hebrew text still reads right-to-left.

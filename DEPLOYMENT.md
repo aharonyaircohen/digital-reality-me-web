@@ -24,6 +24,21 @@ does not configure it.
    inspect desktop and mobile, images, article expand/collapse, and changed links.
 5. Report any unverified checks explicitly.
 
+## Roll back a site update
+
+Use a new revert commit to undo a bad update while preserving history:
+
+1. Check `git status` and preserve any uncommitted work before proceeding.
+2. Use `git log --oneline` and `git show COMMIT_SHA` to identify the exact commit
+   that introduced the problem. Replace `COMMIT_SHA` with that reviewed hash.
+3. Run `git revert COMMIT_SHA`. For multiple commits or a merge, inspect the
+   dependencies and changes first rather than guessing a range or merge parent.
+4. Run the required checks in `AGENTS.md`, then push the revert to `main`.
+5. Wait for the Pages workflow and verify the restored behavior at the public URL.
+
+Do not force-push or reset shared history. A code revert does not undo DNS or
+GitHub settings changes; restore and verify those separately if relevant.
+
 ## Diagnose and repair HTTPS
 
 Read the current state rather than assuming a certificate is still pending:
@@ -62,32 +77,22 @@ References: [GitHub HTTPS troubleshooting](https://docs.github.com/en/pages/gett
 
 ## Optional deployment to Vercel
 
-Use these steps when the owner requests Vercel hosting. This is an alternative
-deployment plan, not the current hosting configuration.
+This migration guide has not been tested for this repository. Use it only when
+the owner requests Vercel hosting, and verify the current linked vendor guidance.
 
-1. Import the existing `aharonyaircohen/me` GitHub repository into a Vercel
-   project. Select `main` as the production branch.
-2. Select framework preset **Other**, repository root as Root Directory,
-   no Build Command, no Install Command, and `.` as Output Directory. Override
-   automatic commands with empty values when needed. Do not introduce a framework
-   or build script just to publish these files.
-3. Deploy and test the generated Vercel URL first: homepage, assets, mobile and
-   desktop layouts, both article controls, and a nonexistent path returning 404.
-   Confirm the custom `404.html` renders; fix routing if it does not.
-4. Add `me.thedigitalreality.app` under the project's Domains settings. Inspect
-   the DNS target Vercel specifies for that project; do not guess a target.
-5. Replace only the `me` CNAME with that target. Wait for domain verification
-   and certificate issuance. Verify HTTPS with normal certificate validation,
-   HTTP-to-HTTPS redirection, and a real browser before reporting completion.
-6. After a successful switch, update this document, README, and AGENTS with
-   the actual host and project. Deliberately retire or retain the Pages workflow;
-   do not leave the instructions claiming it publishes the production domain.
-   Remove the Pages custom-domain setting if Pages is retained at its default URL.
-7. Verify that a later push deploys automatically through the GitHub integration.
+1. Import `aharonyaircohen/me`, use production branch `main`, and configure a
+   static deployment: **Other** preset, repository root, no install/build
+   commands, output directory `.`.
+2. Test the Vercel URL before changing DNS: desktop/mobile, assets, article
+   controls, and custom 404 behavior. Keep the working Pages deployment available.
+3. Add the custom domain and replace only the `me` CNAME with the target Vercel
+   supplies. Verify certificate validity, HTTPS redirection, and browser loading.
+4. Verify automatic Git deployments, update these docs with the actual setup,
+   and deliberately retire or retain Pages. If retaining its default URL, remove
+   its custom-domain setting and check asset paths before calling it a backup.
 
-If the cutover fails, restore the `me` CNAME to `aharonyaircohen.github.io` and
-the GitHub Pages domain setting, then verify GitHub HTTPS again. Keep the working
-Pages deployment available until the Vercel cutover is verified.
+If migration fails, restore the GitHub CNAME and Pages domain setting listed
+above, then verify HTTPS again.
 
 References: [Vercel build settings](https://vercel.com/docs/builds/configure-a-build),
 [GitHub integration](https://vercel.com/docs/git/vercel-for-github),

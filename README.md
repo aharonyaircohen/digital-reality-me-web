@@ -12,7 +12,8 @@ database, login, framework, or build process.
 ## Update the page
 
 - Profile text and links: edit `index.html`.
-- Theme colors: edit `themes.css` or change `data-theme` in `index.html`.
+- Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
+  in `index.html` and `404.html` (see `AGENTS.md`).
 - Spacing and layout: edit `styles.css`.
 - Article expansion behavior: edit `script.js`.
 - Hero and content images: add optimized WebP files under `assets/images/content/`.
@@ -21,20 +22,27 @@ database, login, framework, or build process.
 - Profile and social-preview assets: update files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.
 
-Run the local checks with:
+## Local checks and preview
+
+Use Node.js 22 (matching CI) with npm for checks, and Python 3 for the preview
+server. No `npm install` is needed; the tests use Node's built-in tools.
+
+Run the local checks from the repository root:
 
 ```bash
 npm test
 npm run check:links
 ```
 
-You can preview the site by opening `index.html` directly or by running:
+Preview through a local HTTP server so root-relative asset paths work:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open <http://localhost:8080>.
+Then open <http://localhost:8080> and <http://localhost:8080/404.html>.
+The Python server does not automatically serve our custom 404 page for missing
+paths; test a nonexistent URL on the deployed site to verify that behavior.
 
 Pushing to `main` automatically deploys the current version to GitHub Pages.
 
