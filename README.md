@@ -1,9 +1,9 @@
 # Me
 
 A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
-Pages. It includes courses, communities, water articles, and consciousness
-articles. It uses plain HTML, CSS, and a small JavaScript file, so there is no
-database, login, framework, or build process.
+Pages. It includes courses, communities, water articles, consciousness articles,
+and a static archive of published posts. It uses plain HTML, CSS, and a small
+JavaScript file, so there is no database, login, framework, or build process.
 
 ## Public site
 
@@ -12,6 +12,11 @@ database, login, framework, or build process.
 ## Update the page
 
 - Profile text and links: edit `index.html`.
+- Published posts: `posts/index.html` groups static post pages by their source
+  categories. To refresh them, use `content-library/posts/*/metadata.json` and
+  `source.html`; include only entries whose status is `publish`, and copy media
+  referenced by the articles. The public site never fetches the private source
+  repository in the browser.
 - Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
   in `index.html` and `404.html` (see `AGENTS.md`).
 - Spacing and layout: edit `styles.css`.
