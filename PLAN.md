@@ -33,8 +33,9 @@ post URL. GitHub Actions does not fetch posts or generate HTML for them.
 1. The content repository and media are publicly readable. The site uses
    unauthenticated API requests; no GitHub token is included in site JavaScript.
 2. A small browser script reads `index.json` and renders published Hebrew posts
-   in the existing four simple topic lists. The links are text-only; the site
-   does not fetch every post just to make homepage cards.
+   in the existing four simple topic lists, including thumbnails whose
+   `featured_media_path` points back to the content repository. The site does
+   not fetch every post's metadata just to make homepage cards.
 3. One `post.html` template and the browser script load a selected post's
    metadata and source. They validate the post ID and published status, resolve
    featured and inline media, and remove executable markup from source HTML.
@@ -61,3 +62,12 @@ post URL. GitHub Actions does not fetch posts or generate HTML for them.
 Done: browser page loads obtain posts from the public content repository, one
 template renders posts, copied post content has been removed from the site
 repository, and the deployed site has been verified.
+
+## Restore homepage post thumbnails
+
+The first deployed version removed the copied post images but the public
+content index did not yet include featured image paths, so homepage rows had no
+thumbnails. The content repository now adds `featured_media_path` to its
+published post records (commit `c66a538`). The site resolves those paths to
+`raw.githubusercontent.com` and renders the images from the content repository.
+This keeps the homepage to one index API request.

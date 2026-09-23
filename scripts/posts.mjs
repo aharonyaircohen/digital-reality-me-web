@@ -75,6 +75,18 @@ function rawMediaBase(path) {
   return `${RAW_ROOT}${path.replace(/\/$/, "").split("/").map(encodeURIComponent).join("/")}/`;
 }
 
+export function homepageFeaturedImageUrl(post) {
+  if (typeof post?.path !== "string" || !post.path.startsWith("posts/")
+    || post.path.split("/").some((part) => !part || part === "." || part === "..")
+    || typeof post.featured_media_path !== "string") return null;
+  const mediaPath = post.featured_media_path.replace(/^\.\//, "");
+  if (!mediaPath || mediaPath.startsWith("/")
+    || mediaPath.split("/").some((part) => !part || part === "." || part === "..")) return null;
+  const base = rawMediaBase(post.path);
+  const imageUrl = new URL(mediaPath, base).href;
+  return imageUrl.startsWith(base) ? imageUrl : null;
+}
+
 async function loadHomepage() {
   const target = document.querySelector("#post-groups");
   const status = document.querySelector("#post-load-status");
@@ -93,9 +105,10 @@ async function loadHomepage() {
         const title = document.createElement("strong");
         title.textContent = postTitle(post);
         label.append(title);
-        if (post.featured_media_path && post.path) {
+        const imageUrl = homepageFeaturedImageUrl(post);
+        if (imageUrl) {
           const image = document.createElement("img");
-          image.src = new URL(post.featured_media_path.replace(/^\.\//, ""), rawMediaBase(post.path)).href;
+          image.src = imageUrl;
           image.alt = "";
           image.loading = "lazy";
           link.prepend(image);

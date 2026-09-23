@@ -3,7 +3,7 @@ import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { decodeContentsResponse, githubFileUrl, isPublishedHebrewPost, topicForPost } from "../scripts/posts.mjs";
+import { decodeContentsResponse, githubFileUrl, homepageFeaturedImageUrl, isPublishedHebrewPost, topicForPost } from "../scripts/posts.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
@@ -202,4 +202,16 @@ test("GitHub API file contents decode as UTF-8", () => {
   const content = Buffer.from(json).toString("base64");
   assert.equal(decodeContentsResponse(JSON.stringify({ content })), json);
   assert.equal(decodeContentsResponse("מים", "application/vnd.github.raw"), "מים");
+});
+
+test("homepage featured images resolve to the public content repository safely", () => {
+  assert.equal(
+    homepageFeaturedImageUrl({
+      path: "posts/5007-no-distilled-water-in-nature-myth",
+      featured_media_path: "media/snow-water.jpg",
+    }),
+    "https://raw.githubusercontent.com/aharonyaircohen/digital-reality-web-content/main/posts/5007-no-distilled-water-in-nature-myth/media/snow-water.jpg",
+  );
+  assert.equal(homepageFeaturedImageUrl({ path: "posts/5007" }), null);
+  assert.equal(homepageFeaturedImageUrl({ path: "posts/5007", featured_media_path: "../../private.jpg" }), null);
 });
