@@ -22,7 +22,7 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 - `index.html` contains profile text, social accounts, featured cards,
   community links, and published post links grouped by their main topic.
 - `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
-  published posts from `content-library/posts/`.
+  published posts from `digital-reality-web-content/posts/`.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `assets/images/content/` contains hero, course, community, and article images.

@@ -5,8 +5,8 @@ Status: planning. The generation described below has not been merged into
 
 ## Goal
 
-Keep `aharonyaircohen/content-library` as the only place where post text and
-post media are edited. At build time, generate the homepage post links and all
+Keep `aharonyaircohen/digital-reality-web-content` as the only place where post
+text and media are edited. At build time, generate the homepage post links and all
 post pages for `me.thedigitalreality.app`. The published site remains plain,
 static HTML and CSS. Visitors do not fetch content from GitHub.
 
@@ -16,15 +16,17 @@ static HTML and CSS. Visitors do not fetch content from GitHub.
   copies of post HTML and media. Updating a post requires copying it here.
 - The source repository is private. GitHub Actions in `me` currently has no
   credential to read it.
-- The site has four visible topic groups: `מים`, `תודעה`, `תזונה`, and `בריאות`.
+- The site has four visible topic groups: `מים`, `תודעה`, `תזונה`, and
+  `בריאות`.
 - The requested public collection is published Hebrew posts only. Four English
   posts currently in `me` must disappear when the new build is deployed.
 
 ## Build design
 
 1. Give the `me` workflow read-only access to the private source repository.
-   Prefer a fine-grained token limited to `content-library` with **Contents:
-   read**, stored as the `CONTENT_LIBRARY_READ_TOKEN` Actions secret in `me`.
+   Prefer a fine-grained token limited to `digital-reality-web-content` with
+   **Contents: read**, stored as the `WEB_CONTENT_READ_TOKEN` Actions secret
+   in `me`.
    Do not place the token in code, logs, generated pages, or a browser request.
 2. Add one small Node build script. It fetches a specific source revision from
    GitHub, reads each `posts/*/metadata.json` and `source.html`, and records the
@@ -49,7 +51,7 @@ static HTML and CSS. Visitors do not fetch content from GitHub.
    deployment and leave the last successful live site in place.
 8. After the generated output matches the current Hebrew pages, remove the
    copied `posts/` files and handwritten post cards from `me`. Keep the source
-   content in `content-library` and the generated output out of Git.
+   content in `digital-reality-web-content` and the generated output out of Git.
 
 ## Verification before rollout
 
@@ -68,11 +70,12 @@ static HTML and CSS. Visitors do not fetch content from GitHub.
 ## Decisions needed
 
 - Confirm private-source access: the recommended read-only token, or making
-  `content-library` public. The token keeps drafts and source history private.
+  `digital-reality-web-content` public. The token keeps drafts and source
+  history private.
 - Confirm the daily refresh cadence if source changes need to appear sooner.
 
 ## Done when
 
-Post edits happen only in `content-library`; one template generates all public
-post pages; the homepage shows only published Hebrew posts in the four topic
+Post edits happen only in `digital-reality-web-content`; one template generates
+all public post pages; the homepage shows only published Hebrew posts in the four topic
 groups; local and deployed checks pass; and the public site remains static.
