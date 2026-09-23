@@ -7,8 +7,8 @@ Status: plan only. The generator has not been merged into `main` or deployed.
 - `aharonyaircohen/digital-reality-me-web` is the **public site** repository.
   GitHub Pages serves it at `me.thedigitalreality.app`.
 - `aharonyaircohen/digital-reality-web-content` holds the post source files.
-  The build reads them from GitHub. Site visitors receive generated HTML and
-  images; their browsers do not contact the source repository.
+  The build script loads them through GitHub's API. Site visitors receive
+  generated HTML and images; their browsers do not contact GitHub for posts.
 
 ## Target
 
@@ -19,9 +19,10 @@ topic groups. English and pending posts do not appear on the site.
 
 ## Steps
 
-1. Add a build script that reads `posts/*/metadata.json`, `source.html`, and
-   referenced media at a known source revision. Validate status, language,
-   title, post ID, and media. A bad record stops the build with a clear error.
+1. Add a build script that calls the GitHub API to list post folders and fetch
+   each `metadata.json`, `source.html`, and referenced media. Use one source
+   commit SHA for the whole build. Validate status, language, title, post ID,
+   and media. A bad record stops the build with a clear error.
 2. Assign each included post to `מים`, `תודעה`, `תזונה`, or `בריאות` from its
    content. Cover the category rules with representative tests and flag
    ambiguous posts for review. Keep the homepage and post-page label aligned.
@@ -38,8 +39,8 @@ topic groups. English and pending posts do not appear on the site.
 
 ## Verification
 
-- Test the published/Hebrew filter, category assignments, missing data,
-  escaping, media paths, and stable post URLs.
+- Test API responses, the published/Hebrew filter, category assignments,
+  missing data, escaping, media paths, and stable post URLs.
 - Build from the real source and confirm each expected Hebrew post appears once,
   with no English or pending post in the output.
 - Check generated links and assets. Inspect the homepage, an image post, a table
