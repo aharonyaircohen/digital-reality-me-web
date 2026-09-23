@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 const run = promisify(execFile);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const html = await readFile(resolve(root, "index.html"), "utf8");
+const html = await readFile(resolve(root, "dist", "index.html"), "utf8");
 const urls = [...new Set(
   [...html.matchAll(/href="(https:\/\/[^"#]+)"/g)].map((match) => match[1]),
 )];

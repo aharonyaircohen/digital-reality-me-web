@@ -9,20 +9,23 @@
 - DNS record: `me` CNAME `aharonyaircohen.github.io`.
 - GitHub Pages custom domain: `me.thedigitalreality.app`; Enforce HTTPS enabled.
 
-This is a plain static site. GitHub Pages is sufficient; Vercel hosting is
-optional. Neither option needs a database, framework, or application server.
+This is a generated static site. GitHub Pages is sufficient; Vercel hosting is
+optional. Neither option needs a database or application server.
 The repository's `CNAME` records the intended domain. With the current Actions
 deployment, configure the domain in GitHub Pages settings as well; the file alone
 does not configure it.
 
 ## Publish updates
 
-1. Follow `AGENTS.md`, run `npm test` and `git diff --check`.
-2. Commit and push to `main`.
-3. Wait for the **Deploy GitHub Pages** workflow to succeed.
-4. Verify the public URL over HTTPS and open it in a browser. For page changes,
-   inspect desktop and mobile, images, article expand/collapse, and changed links.
-5. Report any unverified checks explicitly.
+1. Add a read-only `CONTENT_LIBRARY_READ_TOKEN` repository secret with access to
+   the private `aharonyaircohen/content-library` repository. Keep it out of code.
+2. Follow `AGENTS.md`; run `npm ci`, `npm test`, `npm run build`,
+   `npm run test:site`, and `git diff --check`.
+3. Commit and push to `main`.
+4. Wait for the **Deploy GitHub Pages** workflow to succeed.
+5. Verify the public URL over HTTPS and open it in a browser. For page changes,
+   inspect desktop and mobile, images, categories, and changed links.
+6. Report any unverified checks explicitly.
 
 ## Roll back a site update
 
@@ -81,8 +84,9 @@ This migration guide has not been tested for this repository. Use it only when
 the owner requests Vercel hosting, and verify the current linked vendor guidance.
 
 1. Import `aharonyaircohen/me`, use production branch `main`, and configure a
-   static deployment: **Other** preset, repository root, no install/build
-   commands, output directory `.`.
+   static deployment: **Other** preset, repository root, `npm ci` install command,
+   `npm run build` build command, output directory `dist`. Give the build a
+   read-only `GH_TOKEN` with access to `content-library`.
 2. Test the Vercel URL before changing DNS: desktop/mobile, assets, article
    controls, and custom 404 behavior. Keep the working Pages deployment available.
 3. Add the custom domain and replace only the `me` CNAME with the target Vercel

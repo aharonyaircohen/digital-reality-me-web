@@ -5,8 +5,8 @@
 This repository is the source for Aharon Yair Cohen's public profile and content
 library. It is a static GitHub Pages site with a visual hero, featured courses,
 community links, and categorized article collections. Keep it fast, accessible,
-and easy to maintain without a database, login, framework, package installation,
-or build step.
+and easy to maintain without a database, login, or runtime framework. The build
+script is the only content pipeline.
 
 The public site is:
 
@@ -19,17 +19,20 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 
 ## Architecture
 
-- `index.html` contains profile text, social accounts, featured cards,
-  community links, and published post links grouped by their main topic.
-- `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
-  published posts from `content-library/posts/`.
+- `templates/index.html` contains profile text, social accounts, featured cards,
+  community links, and the generated post-group placeholder.
+- `templates/post.html` is the shared post-page template.
+- `scripts/build.mjs` reads the private `content-library/posts/` repository and
+  writes all public pages and media to ignored `dist/`. Never check generated
+  post pages or media into this repository.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `assets/images/content/` contains hero, course, community, and article images.
 - `assets/images/` also contains profile and social-sharing assets.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
 - `.github/workflows/check-links.yml` checks external destinations every week.
-- `tests/site.test.mjs` checks the important structure and local assets.
+- `tests/build.test.mjs` checks the content filter and generator;
+  `tests/site.test.mjs` checks the generated site.
 
 Do not add a CMS, backend, database, analytics tracker, UI framework, or build
 tool unless the owner explicitly asks for it.
@@ -45,49 +48,40 @@ tool unless the owner explicitly asks for it.
 
 ### Change the name or description
 
-Edit the profile header in `index.html`. Also update the page title,
+Edit the profile header in `templates/index.html`. Also update the page title,
 description, and Open Graph metadata in `<head>` when relevant.
 
 ### Add or update a link
 
-Every destination is an anchor in `index.html`. Use `featured-card` for courses,
+Every profile destination is an anchor in `templates/index.html`. Use `featured-card` for courses,
 `media-row--community` or `media-row--contact` for direct contact, and a
-`media-row` inside the matching `post-group` for published posts.
+generated `media-row` cards for published posts.
 
 1. Copy an existing card from the same section and preserve its class.
 2. Change its `href`, title, subtitle, and image path.
 3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
 4. Use a short Hebrew title and optional short subtitle.
 5. Keep cards under the matching section and preserve the order: courses,
-   community, posts grouped by topic.
+   community, posts grouped by topic. Edit post content in `content-library`.
 
 ### Remove a link
 
-Delete the complete matching anchor element. Delete its image only when no other
-part of the site uses that image.
+Delete the complete matching profile anchor element. Delete its image only when
+no other part of the site uses that image. Post visibility follows source status
+and the Hebrew filter in `scripts/build.mjs`.
 
 ### Refresh published posts
 
-- Read each source post's `metadata.json` and include only `status: "publish"`.
-  Never copy pending or draft post content into this public repository.
-- Read the title and full text, then assign each post to one homepage topic by
-  its main subject. Use `מים` for water, hydration, filtration, and water systems;
-  `תודעה` for meditation, emotions, and personal growth; `תזונה` for food and
-  eating; and `בריאות` for body, movement, and other health subjects. Ignore
-  missing or misleading source categories. Reuse these four topics unless a
-  genuinely distinct collection needs a new one; do not add an uncategorized
-  group. Keep the homepage heading and post-page category label in sync. This
-  classification happens when refreshing the static HTML, not in the browser.
-  Post links use WordPress IDs.
-- Use each published post's `source.html` for its full text. Copy only media it
-  references; convert inline images to lightweight WebP files and update their
-  paths. Copy and optimize its `featured_media_source_url` image as
-  `posts/<id>/media/featured.webp` and show it in the post header. Keep linked
-  PDFs available beside the post.
+- Run `npm run build` to fetch the latest private source through the signed-in
+  GitHub CLI. The script includes only `status: "publish"` Hebrew posts, uses
+  `source.html` for article text, and optimizes local media into `dist/`.
+- Post topics are assigned in `scripts/build.mjs` from title context with source
+  category as a fallback. Keep the four topic names and the page label in sync.
+  Update its small set of rules and tests when new subject matter requires it.
 - Source post 4564 has an empty title in metadata. Its displayed title is
   `טבלה מורחבת — השקט הפנימי` until the source supplies one.
-- Run the post regression test and inspect the homepage category groups plus
-  representative Hebrew, English, image, and table posts in a browser.
+- Run `npm test` and `npm run test:site`, then inspect the generated homepage
+  groups plus representative image and table posts in a browser.
 
 ### Change an image
 
@@ -95,7 +89,7 @@ part of the site uses that image.
 2. Use WebP for page images and keep each file below 200 KB.
 3. Hero and featured images may be large landscape or square images. Article
    thumbnails may use any ratio because CSS crops them safely.
-4. Update the matching path in `index.html`.
+4. Update the matching path in `templates/index.html`.
 5. Keep meaningful `alt` text for the profile image. Decorative link thumbnails
    should keep `alt=""` because the adjacent link text already describes them.
 6. When profile branding changes, update `social-preview.svg`, regenerate
@@ -108,7 +102,7 @@ part of the site uses that image.
 
 - Preserve the purple outer gradient and deep-indigo content-library structure
   unless the owner asks for a redesign.
-- Set the same active `data-theme` on `<html>` in `index.html` and `404.html`.
+- Set the same active `data-theme` on `<html>` in both templates and `404.html`.
   Review each page's `theme-color` metadata when changing themes; update sharing
   artwork when the branding changes. Update tests that intentionally assert the
   active theme or palette to match the approved change.
@@ -116,8 +110,8 @@ part of the site uses that image.
 - Change shared colors only through the variables in `themes.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
 - After changing `themes.css` or `styles.css`, update the `?v=` value on both
-  stylesheet links in both `index.html` and `404.html` so browsers do not show
-  stale colors. Use matching versions for the same asset across both pages.
+  stylesheet links in both templates and `404.html` so browsers do not show
+  stale colors. Use matching versions for the same asset across pages.
 - Keep the hero, content area, shell, and footer on the same `--content-base`
   background. Do not reintroduce a separate header or footer color or divider.
 - Keep the desktop shell at 760px and its primary content at 680px unless a
@@ -139,8 +133,8 @@ part of the site uses that image.
 
 Before committing:
 
-1. Run `npm test`.
-2. Use the local HTTP server described in `README.md`; inspect the homepage and
+1. Run `npm ci`, `npm test`, `npm run build`, and `npm run test:site`.
+2. Serve `dist/` with the local HTTP server described in `README.md`; inspect the homepage and
    `/404.html` at mobile and desktop widths. Verify missing-path 404 behavior on
    the deployed site, since the Python server uses its own error page.
 3. Check every changed external link.
