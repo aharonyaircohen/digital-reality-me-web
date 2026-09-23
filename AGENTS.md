@@ -23,8 +23,8 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
   community links, and topic placeholders for posts loaded in the browser.
 - `post.html` is the shared post template. `scripts/posts.mjs` loads published
   post content from the public `digital-reality-web-content` repository.
-- `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
-  published posts from `digital-reality-web-content/posts/`.
+- `posts/<wordpress-id>/index.html` are small redirects that preserve old post
+  URLs. Post content is loaded into the shared `post.html` template.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `assets/images/content/` contains hero, course, community, and article images.

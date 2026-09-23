@@ -11,18 +11,24 @@ export function githubFileUrl(path) {
 
 export function topicForPost(post) {
   if (TOPICS.includes(post.display_topic)) return post.display_topic;
-  const text = `${post.title || ""} ${post.excerpt || ""}`;
+  const title = post.title || (Number(post.wordpress_id) === 4564 ? "טבלה מורחבת — השקט הפנימי" : "");
+  const text = `${title} ${post.excerpt || ""}`.normalize("NFD").replace(/\p{M}/gu, "");
   if (/אוכל|אכילה|תזונה|מלח/.test(text)) return "תזונה";
-  if (/נפש|תודעה|ילד פנימי|שקט פנימי|מוח|עץ הצללים|מראות|שליטה|מדיטציה/.test(text)) return "תודעה";
-  if (/מים|שתייה|שתיה|סינון|אוסמוזה|וורטקס|התייבשות|ימה|נחושת|בצורת תאית/.test(text)) return "מים";
+  if (/נפש|תודעה|ילד.{0,5}פנימי|שקט.{0,6}פנימי|מוח|עץ הצללים|מראות|שליטה|מדיטציה/.test(text)) return "תודעה";
+  if (/מים|שתייה|שתיה|סינון|אוסמוזה|וורטקס|מרווים|התייבשות|ימה|נחושת|בצורת תאית|שקית התה|מיקרו קלסטרינג/.test(text)) return "מים";
   return "בריאות";
 }
 
 export function isPublishedHebrewPost(post) {
+  const title = post?.title || (Number(post?.wordpress_id) === 4564 ? "טבלה מורחבת — השקט הפנימי" : "");
   return post?.status === "publish"
     && Number.isInteger(Number(post.wordpress_id))
     && Number(post.wordpress_id) > 0
-    && /[\u0590-\u05ff]/.test(post.title || "");
+    && /[\u0590-\u05ff]/.test(title);
+}
+
+function postTitle(post) {
+  return post.title || (Number(post.wordpress_id) === 4564 ? "טבלה מורחבת — השקט הפנימי" : "מאמר");
 }
 
 export function decodeContentsResponse(text, contentType = "") {
@@ -85,8 +91,15 @@ async function loadHomepage() {
         link.lang = "he";
         const label = document.createElement("span");
         const title = document.createElement("strong");
-        title.textContent = post.title;
+        title.textContent = postTitle(post);
         label.append(title);
+        if (post.featured_media_path && post.path) {
+          const image = document.createElement("img");
+          image.src = new URL(post.featured_media_path.replace(/^\.\//, ""), rawMediaBase(post.path)).href;
+          image.alt = "";
+          image.loading = "lazy";
+          link.prepend(image);
+        }
         const arrow = document.createElement("span");
         arrow.className = "row-arrow";
         arrow.setAttribute("aria-hidden", "true");
@@ -122,7 +135,7 @@ async function loadPost() {
     ]);
     const metadata = JSON.parse(metadataText);
     if (metadata.status !== "publish" || Number(metadata.wordpress_id) !== Number(id)) throw new Error("Post unavailable");
-    const title = metadata.title || post.title || (id === "4564" ? "טבלה מורחבת — השקט הפנימי" : "מאמר");
+    const title = metadata.title || postTitle(post);
     document.title = `${title} — יאיר אהרון כהן`;
     document.querySelector("#post-title").textContent = title;
     document.querySelector("#post-category").textContent = topicForPost({ ...post, ...metadata });

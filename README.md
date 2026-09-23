@@ -13,9 +13,9 @@ GitHub repository when visitors open the homepage or a post.
 - Profile text and links: edit `index.html`.
 - Published posts: the browser reads the source repository's `index.json`, then
   loads a selected post's `metadata.json` and `source.html` into the shared
-  `post.html` template. Only published Hebrew posts appear. The content
-  repository must allow public read access; no GitHub token is used in browser
-  code. See `PLAN.md` for remaining migration work.
+  `post.html` template. Only published Hebrew posts appear. No GitHub token is
+  used in browser code. Old `/posts/<id>/` addresses redirect to the shared
+  template.
 - Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
   in `index.html` and `404.html` (see `AGENTS.md`).
 - Spacing and layout: edit `styles.css`.

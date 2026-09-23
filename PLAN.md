@@ -1,8 +1,8 @@
 # Plan: Load posts when a visitor opens the site
 
-Status: partially implemented locally. The browser loader and shared post
-template are in place. Visitor access remains unverified because unauthenticated
-requests to the content repository currently return 404.
+Status: implemented locally and verified against the now-public content
+repository. The anonymous GitHub API request succeeds. The change is not yet
+deployed to GitHub Pages.
 
 ## Goal
 
@@ -28,36 +28,30 @@ generated post pages or site build step.
 This is a **browser request on each page load**, including direct visits to a
 post URL. GitHub Actions does not fetch posts or generate HTML for them.
 
-## Changes needed
+## Implementation
 
-1. Make the content repository and media publicly readable. The browser must
-   use unauthenticated API requests; no GitHub token belongs in site JavaScript.
-2. Extend the content repository's existing `index.json` entries with the
-   display topic and featured-image path needed for homepage cards. Derive the
-   four topics from post content when maintaining the source index, and flag
-   ambiguous assignments for review. Keep this metadata with the content so
-   the homepage needs one API request instead of fetching every post.
-3. Replace hardcoded homepage post cards with a small browser script that
-   reads the index and renders the same simple lists. Keep the rest of the
-   homepage static.
-4. Add one `post.html` template and a small browser script for loading a post.
-   Validate the post ID and fetched status before rendering. Resolve the
-   featured image and inline media paths, and reject executable markup from
-   source HTML.
-5. Once anonymous API reads work, remove copied post HTML and images from the
-   site repository. New links use `post.html?id=<wordpress-id>`. Keep existing
-   `/posts/<id>/` paths as short redirects to the shared template.
+1. The content repository and media are publicly readable. The site uses
+   unauthenticated API requests; no GitHub token is included in site JavaScript.
+2. A small browser script reads `index.json` and renders published Hebrew posts
+   in the existing four simple topic lists. The links are text-only; the site
+   does not fetch every post just to make homepage cards.
+3. One `post.html` template and the browser script load a selected post's
+   metadata and source. They validate the post ID and published status, resolve
+   featured and inline media, and remove executable markup from source HTML.
+4. Copied article pages and images have been removed. New links use
+   `post.html?id=<wordpress-id>`. Existing Hebrew `/posts/<id>/` paths are short
+   redirects to the shared template. English post routes were removed.
 
 ## Verification
 
-- Test the published/Hebrew filter, categories, bad API responses, media paths,
-  HTML safety, and direct post links.
-- Serve the real site locally and check the homepage plus posts with a featured
-  image, inline image, and table on desktop and mobile.
-- Check the deployed site with the real public content API. Confirm a new
-  published source post appears after a reload without a site deployment, and
-  confirm unpublished and English posts remain hidden.
+- Automated tests cover published/Hebrew filtering, categories, API decoding,
+  and old post redirects. The post page also uses a browser-side markup
+  sanitizer before inserting source HTML.
+- Anonymous access to the public content API returned HTTP 200. The local site
+  loaded in a real browser with 29 published Hebrew posts, and a post with a
+  featured image opened through the shared template.
+- The deployed site still needs verification after the change is published.
 
-Done when browser page loads obtain posts from the public content repository,
-one template renders every post, and the site repository contains no copied
-post content.
+Done locally: browser page loads obtain posts from the public content
+repository, one template renders posts, and the site repository contains no
+copied post content. Deployment and deployed browser verification remain.

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -171,6 +171,18 @@ test("posts load from the GitHub API into one shared page template", async () =>
   await access(resolve(root, "scripts", "posts.mjs"));
 });
 
+test("old Hebrew post URLs redirect to the shared template without copied media", async () => {
+  const postIds = await readdir(resolve(root, "posts"));
+  assert.ok(postIds.length > 0);
+  for (const id of postIds) {
+    assert.match(id, /^\d+$/);
+    const redirect = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
+    assert.match(redirect, new RegExp(`post\\.html\\?id=${id}`));
+    await assert.rejects(access(resolve(root, "posts", id, "media")));
+  }
+  await assert.rejects(access(resolve(root, "posts", "142", "index.html")));
+});
+
 test("GitHub post filtering and topic assignment keep English and drafts out", () => {
   const hebrew = { status: "publish", wordpress_id: 5007, title: "מים מזוקקים בטבע" };
   assert.equal(isPublishedHebrewPost(hebrew), true);
@@ -180,6 +192,8 @@ test("GitHub post filtering and topic assignment keep English and drafts out", (
   assert.equal(topicForPost({ title: "אכילה מודעת" }), "תזונה");
   assert.equal(topicForPost({ title: "שקט פנימי" }), "תודעה");
   assert.equal(topicForPost({ title: "תנועה ובריאות הגוף" }), "בריאות");
+  assert.equal(isPublishedHebrewPost({ status: "publish", wordpress_id: 4564, title: "" }), true);
+  assert.equal(topicForPost({ wordpress_id: 4564, title: "" }), "תודעה");
   assert.match(githubFileUrl("posts/5007/source.html"), /api\.github\.com\/repos\/aharonyaircohen\/digital-reality-web-content\/contents\/posts\/5007\/source\.html\?ref=main/);
 });
 
