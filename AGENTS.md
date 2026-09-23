@@ -1,4 +1,4 @@
-# Agent instructions for Me
+# Agent instructions for Digital Reality Me Web
 
 ## Purpose
 
@@ -22,7 +22,9 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 - `index.html` contains profile text, social accounts, featured cards,
   community links, and published post links grouped by their main topic.
 - `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
-  published posts from `content-library/posts/`.
+  published posts from the private `digital-reality-web-content/posts/` repository.
+  Original authored work and the Markdown book manuscript are in the separate
+  private `digital-reality-source` repository.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
 - `assets/images/content/` contains hero, course, community, and article images.
@@ -68,7 +70,8 @@ part of the site uses that image.
 
 ### Refresh published posts
 
-- Read each source post's `metadata.json` and include only `status: "publish"`.
+- Read each website record's `metadata.json` in `digital-reality-web-content/posts/`
+  and include only `status: "publish"`.
   Never copy pending or draft post content into this public repository.
 - Read the title and full text, then assign each post to one homepage topic by
   its main subject. Use `מים` for water, hydration, filtration, and water systems;
