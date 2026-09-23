@@ -8,9 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
 const styles = await readFile(resolve(root, "styles.css"), "utf8");
-const script = await readFile(resolve(root, "script.js"), "utf8");
 const notFound = await readFile(resolve(root, "404.html"), "utf8");
-const postsIndex = await readFile(resolve(root, "posts/index.html"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
@@ -24,7 +22,7 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
 });
 
 test("links are grouped for easier scanning", () => {
-  for (const section of ["קורסים וסדנאות", "קבוצות ומעגלים", "מאמרים — מים", "מאמרים — תודעה"]) {
+  for (const section of ["קורסים וסדנאות", "קבוצות ומעגלים", "מאמרים"]) {
     assert.match(html, new RegExp(section));
   }
 });
@@ -33,8 +31,8 @@ test("content library keeps its complete structure", () => {
   assert.equal((html.match(/class="featured-card"/g) ?? []).length, 4);
   assert.equal((html.match(/class="media-row media-row--community"/g) ?? []).length, 2);
   assert.equal((html.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
-  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 11);
-  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 10);
+  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 30);
+  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 3);
 });
 
 test("all documented themes are defined", () => {
@@ -77,23 +75,27 @@ test("social links use the shared polished icon set", () => {
   assert.equal((html.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
 });
 
-test("expandable article lists stay available without extra tab navigation", () => {
+test("published posts are visible by category without an archive or disclosure control", () => {
   assert.doesNotMatch(html, /class="section-nav"/);
-  assert.equal((html.match(/data-collapsible/g) ?? []).length, 2);
-  assert.equal((html.match(/class="show-more"/g) ?? []).length, 2);
-  assert.match(script, /classList\.add\("is-collapsed"\)/);
-  assert.match(script, /aria-expanded/);
+  assert.equal((html.match(/<section class="post-group"/g) ?? []).length, 9);
+  assert.doesNotMatch(html, /<details|<summary|posts-entry|script\.js|ארכיון הפוסטים/);
 });
 
 test("course cards stay clean while smaller rows keep subtle chevrons", () => {
   assert.doesNotMatch(html, /class="card-arrow"/);
-  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 25);
+  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 36);
 });
 
-test("mobile layout shows four articles before expanding", () => {
-  assert.match(styles, /\.article-list\.is-collapsed \.media-row:nth-child\(n \+ 5\)/);
+test("mobile layout keeps featured cards and category headings", () => {
+  assert.match(styles, /\.post-group h3/);
   assert.match(styles, /\.featured-card \{\s*height: 190px;/);
   assert.match(styles, /--image-position-mobile/);
+});
+
+test("post pages use the site palette and align featured images with article width", () => {
+  assert.match(styles, /\.post-content \{[\s\S]*?width: min\(100%, 680px\);[\s\S]*?color: var\(--ink\);[\s\S]*?background: rgba\(12, 42, 84, 0\.88\);/);
+  assert.match(styles, /\.post-featured-image \{[\s\S]*?width: min\(100%, 680px\);[\s\S]*?height: auto;/);
+  assert.doesNotMatch(styles, /\.post-content \{[^}]*background: #f8fbff;/);
 });
 
 test("images support optional focal points without CSS edits", () => {
@@ -117,7 +119,7 @@ test("custom domain configuration is present", async () => {
 
 test("external blank-target links are protected", () => {
   const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
-  assert.ok(blankLinks.length >= 30);
+  assert.ok(blankLinks.length >= 7);
   for (const link of blankLinks) {
     assert.match(link, /rel="noopener noreferrer"/);
   }
@@ -128,7 +130,7 @@ test("all local image files exist", async () => {
     [...html.matchAll(/(?:src|href)="(assets\/images\/[^"]+)"/g)]
       .map((match) => match[1]),
   )];
-  assert.ok(imagePaths.length >= 30);
+  assert.ok(imagePaths.length >= 7);
   await Promise.all(imagePaths.map((path) => access(resolve(root, path))));
   await access(resolve(root, "assets/images/social-preview.png"));
 });
@@ -151,23 +153,21 @@ test("web images stay lightweight", async () => {
 test("all public content cards have a real destination", () => {
   const cards = [...html.matchAll(/<a class="(?:featured-card|media-row[^"]*)" href="([^"]+)"/g)]
     .map((match) => match[1]);
-  assert.equal(cards.length, 28);
+  assert.equal(cards.length, 40);
   for (const destination of cards) {
-    assert.match(destination, /^https:\/\//);
+    assert.match(destination, /^(?:https:\/\/|posts\/\d+\/)/);
   }
 });
 
-test("the home page opens the published post archive", () => {
-  assert.match(html, /<a class="posts-entry" href="posts\/">/);
-  assert.match(postsIndex, /<html lang="he" dir="rtl" data-theme="deep-water">/);
-  assert.match(postsIndex, /aria-label="קטגוריות פוסטים"/);
+test("the homepage groups published posts by their source categories", async () => {
+  await assert.rejects(access(resolve(root, "posts", "index.html")));
   for (const category of ["מים", "תודעה", "בריאות", "הזנה", "טיפול עצמי", "Meditation", "Nutrition", "Self-Care", "ללא קטגוריה"]) {
-    assert.match(postsIndex, new RegExp(`<h2[^>]*>${category}</h2>`));
+    assert.match(html, new RegExp(`<h3 id="category-\\d+-title">${category}</h3>`));
   }
 });
 
-test("the static archive contains complete published posts and no pending posts", async () => {
-  const ids = [...postsIndex.matchAll(/class="post-index-item" href="\.\/(\d+)\/"/g)]
+test("the homepage links every published post and no pending posts", async () => {
+  const ids = [...html.matchAll(/class="media-row media-row--(?:water|mind)" href="posts\/(\d+)\/"/g)]
     .map((match) => match[1]);
   assert.equal(ids.length, 33);
   assert.equal(new Set(ids).size, 33);
@@ -184,7 +184,11 @@ test("the static archive contains complete published posts and no pending posts"
     const post = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
     assert.match(post, /<article class="post-content"/);
     assert.match(post, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/posts\/\d+\/">/);
+    assert.match(post, /<img class="post-featured-image" src="\.\/media\/featured\.webp"/);
+    assert.match(post, /href="\.\.\/\.\.\/#posts"/);
     assert.ok(post.length > 1000, `Post ${id} should contain the full article`);
+    const featured = resolve(root, "posts", id, "media", "featured.webp");
+    assert.ok((await stat(featured)).size < 200_000, `${id} featured image should stay below 200 KB`);
     for (const [, asset] of post.matchAll(/(?:src|href)="\.\/media\/([^"]+)"/g)) {
       const path = resolve(root, "posts", id, "media", asset);
       await access(path);
