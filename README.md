@@ -1,4 +1,4 @@
-# Me
+# Digital Reality Me Web
 
 A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
 Pages. It includes courses, communities, and published posts grouped by category
@@ -15,10 +15,11 @@ with no database, login, framework, or build process.
 - Published posts: `index.html` groups links by the main subject inferred from
   each article's title and full text. The same topic appears on the post page.
   `posts/<wordpress-id>/index.html` contains each complete post. To refresh them,
-  use `content-library/posts/*/metadata.json` and `source.html`; include only
+  use `digital-reality-web-content/posts/*/metadata.json` and `source.html`; include only
   entries whose status is `publish`. Copy and optimize each featured image and
-  media referenced by the post. The browser never fetches the private source
-  repository.
+  media referenced by the post. The browser never fetches the private website content
+  repository. Original working material and the Markdown book manuscript live
+  separately in the private `digital-reality-source` repository.
 - Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
   in `index.html` and `404.html` (see `AGENTS.md`).
 - Spacing and layout: edit `styles.css`.
