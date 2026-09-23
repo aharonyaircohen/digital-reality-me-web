@@ -31,8 +31,8 @@ test("content library keeps its complete structure", () => {
   assert.equal((html.match(/class="featured-card"/g) ?? []).length, 4);
   assert.equal((html.match(/class="media-row media-row--community"/g) ?? []).length, 2);
   assert.equal((html.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
-  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 30);
-  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 3);
+  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 21);
+  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 12);
 });
 
 test("all documented themes are defined", () => {
@@ -77,7 +77,7 @@ test("social links use the shared polished icon set", () => {
 
 test("published posts are visible by category without an archive or disclosure control", () => {
   assert.doesNotMatch(html, /class="section-nav"/);
-  assert.equal((html.match(/<section class="post-group"/g) ?? []).length, 9);
+  assert.equal((html.match(/<section class="post-group"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /<details|<summary|posts-entry|script\.js|ארכיון הפוסטים/);
 });
 
@@ -159,10 +159,25 @@ test("all public content cards have a real destination", () => {
   }
 });
 
-test("the homepage groups published posts by their source categories", async () => {
+test("homepage topics follow article context and match post-page labels", async () => {
   await assert.rejects(access(resolve(root, "posts", "index.html")));
-  for (const category of ["מים", "תודעה", "בריאות", "הזנה", "טיפול עצמי", "Meditation", "Nutrition", "Self-Care", "ללא קטגוריה"]) {
-    assert.match(html, new RegExp(`<h3 id="category-\\d+-title">${category}</h3>`));
+  const groups = [...html.matchAll(/<section class="post-group"[^>]*>\s*<h3[^>]*>([^<]+)<\/h3>\s*<div class="article-list">([\s\S]*?)<\/div>\s*<\/section>/g)];
+  assert.deepEqual(groups.map(([, category]) => category), ["מים", "תודעה", "תזונה", "בריאות"]);
+
+  const topicByPost = new Map();
+  for (const [, category, cards] of groups) {
+    const ids = [...cards.matchAll(/href="posts\/(\d+)\/"/g)].map((match) => match[1]);
+    assert.ok(ids.length > 0, `${category} should contain posts`);
+    for (const id of ids) {
+      assert.ok(!topicByPost.has(id), `Post ${id} should appear in one topic`);
+      topicByPost.set(id, category);
+      const post = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
+      assert.match(post, new RegExp(`<span class="post-category">${category}</span>`));
+    }
+  }
+  assert.equal(topicByPost.size, 33);
+  for (const [id, category] of [["4522", "מים"], ["4667", "תודעה"], ["149", "תזונה"], ["148", "בריאות"]]) {
+    assert.equal(topicByPost.get(id), category);
   }
 });
 

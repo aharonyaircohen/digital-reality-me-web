@@ -20,7 +20,7 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 ## Architecture
 
 - `index.html` contains profile text, social accounts, featured cards,
-  community links, and published post links grouped by source category.
+  community links, and published post links grouped by their main topic.
 - `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
   published posts from `content-library/posts/`.
 - `themes.css` contains the named color themes and is the color source of truth.
@@ -59,7 +59,7 @@ Every destination is an anchor in `index.html`. Use `featured-card` for courses,
 3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
 4. Use a short Hebrew title and optional short subtitle.
 5. Keep cards under the matching section and preserve the order: courses,
-   community, posts grouped by source category.
+   community, posts grouped by topic.
 
 ### Remove a link
 
@@ -70,8 +70,15 @@ part of the site uses that image.
 
 - Read each source post's `metadata.json` and include only `status: "publish"`.
   Never copy pending or draft post content into this public repository.
-- Preserve the source `categories` labels, including `ללא קטגוריה`, and keep
-  the homepage post groups organized by category. Post links use WordPress IDs.
+- Read the title and full text, then assign each post to one homepage topic by
+  its main subject. Use `מים` for water, hydration, filtration, and water systems;
+  `תודעה` for meditation, emotions, and personal growth; `תזונה` for food and
+  eating; and `בריאות` for body, movement, and other health subjects. Ignore
+  missing or misleading source categories. Reuse these four topics unless a
+  genuinely distinct collection needs a new one; do not add an uncategorized
+  group. Keep the homepage heading and post-page category label in sync. This
+  classification happens when refreshing the static HTML, not in the browser.
+  Post links use WordPress IDs.
 - Use each published post's `source.html` for its full text. Copy only media it
   references; convert inline images to lightweight WebP files and update their
   paths. Copy and optimize its `featured_media_source_url` image as
