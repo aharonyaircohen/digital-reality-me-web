@@ -1,8 +1,8 @@
 # Plan: Load posts when a visitor opens the site
 
-Status: implemented locally and verified against the now-public content
-repository. The anonymous GitHub API request succeeds. The change is not yet
-deployed to GitHub Pages.
+Status: deployed to GitHub Pages and verified. The anonymous GitHub API request
+succeeds, and the live site loads the source repository content in the visitor's
+browser.
 
 ## Goal
 
@@ -47,11 +47,17 @@ post URL. GitHub Actions does not fetch posts or generate HTML for them.
 - Automated tests cover published/Hebrew filtering, categories, API decoding,
   and old post redirects. The post page also uses a browser-side markup
   sanitizer before inserting source HTML.
-- Anonymous access to the public content API returned HTTP 200. The local site
-  loaded in a real browser with 29 published Hebrew posts, and a post with a
-  featured image opened through the shared template.
-- The deployed site still needs verification after the change is published.
+- Anonymous access to the public content API returned HTTP 200. The live
+  homepage loaded in Chrome with 29 published Hebrew posts across all four
+  topic groups, with English posts excluded.
+- The live `post.html?id=5007` page loaded its title, category, date, and article
+  body through the shared template. Its featured image is sourced from the
+  public content repository.
+- The old `/posts/5007/` address serves its redirect to the shared page. The
+  removed English `/posts/142/` route returns 404.
+- GitHub Actions run `35912845834` passed its test and deploy jobs. The deployed
+  homepage and post template both return HTTP 200 over HTTPS.
 
-Done locally: browser page loads obtain posts from the public content
-repository, one template renders posts, and the site repository contains no
-copied post content. Deployment and deployed browser verification remain.
+Done: browser page loads obtain posts from the public content repository, one
+template renders posts, copied post content has been removed from the site
+repository, and the deployed site has been verified.
