@@ -19,14 +19,12 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 
 ## Architecture
 
-- `index.html` contains all profile text, social accounts, featured cards,
-  community links, article collections, and the post archive link.
-- `posts/index.html` and `posts/<wordpress-id>/index.html` are a checked-in,
-  static snapshot of published posts from `content-library/posts/`.
+- `index.html` contains profile text, social accounts, featured cards,
+  community links, and published post links grouped by source category.
+- `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
+  published posts from `content-library/posts/`.
 - `themes.css` contains the named color themes and is the color source of truth.
 - `styles.css` contains the complete visual design.
-- `script.js` progressively adds the article-list “Show more” behavior. Keep the
-  full article lists visible when JavaScript is unavailable.
 - `assets/images/content/` contains hero, course, community, and article images.
 - `assets/images/` also contains profile and social-sharing assets.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
@@ -53,34 +51,36 @@ description, and Open Graph metadata in `<head>` when relevant.
 ### Add or update a link
 
 Every destination is an anchor in `index.html`. Use `featured-card` for courses,
-`media-row--community` or `media-row--contact` for direct contact, and
-`media-row--water` or `media-row--mind` for articles.
+`media-row--community` or `media-row--contact` for direct contact, and a
+`media-row` inside the matching `post-group` for published posts.
 
 1. Copy an existing card from the same section and preserve its class.
 2. Change its `href`, title, subtitle, and image path.
 3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
 4. Use a short Hebrew title and optional short subtitle.
 5. Keep cards under the matching section and preserve the order: courses,
-   community, water articles, consciousness articles.
+   community, posts grouped by source category.
 
 ### Remove a link
 
 Delete the complete matching anchor element. Delete its image only when no other
 part of the site uses that image.
 
-### Refresh the post archive
+### Refresh published posts
 
 - Read each source post's `metadata.json` and include only `status: "publish"`.
   Never copy pending or draft post content into this public repository.
 - Preserve the source `categories` labels, including `ללא קטגוריה`, and keep
-  the archive grouped by category. Post links use their WordPress IDs.
+  the homepage post groups organized by category. Post links use WordPress IDs.
 - Use each published post's `source.html` for its full text. Copy only media it
   references; convert inline images to lightweight WebP files and update their
-  paths. Keep linked PDFs available beside the post.
-- Source post 4564 has an empty title in metadata. Its archive title is
+  paths. Copy and optimize its `featured_media_source_url` image as
+  `posts/<id>/media/featured.webp` and show it in the post header. Keep linked
+  PDFs available beside the post.
+- Source post 4564 has an empty title in metadata. Its displayed title is
   `טבלה מורחבת — השקט הפנימי` until the source supplies one.
-- Run the archive regression test and inspect the archive plus representative
-  Hebrew, English, image, and table posts in a browser before publishing.
+- Run the post regression test and inspect the homepage category groups plus
+  representative Hebrew, English, image, and table posts in a browser.
 
 ### Change an image
 
@@ -118,9 +118,8 @@ part of the site uses that image.
 - Do not add a section tab bar or jump-navigation bar.
 - Course cards must not show arrows. Community, contact, and article rows may
   keep their small, unboxed chevrons.
-- Keep article lists progressively collapsed through `script.js`: show six
-  articles on desktop and four on mobile, with “Show more” and “Show less”. The
-  complete lists must remain available without JavaScript.
+- Keep every category group visible as a simple heading and list, with no
+  expand/collapse control or JavaScript.
 - Preserve the mobile image framing rules: the hero must keep the face and bowl
   visible, featured cards stay 190px tall, and thumbnails remain center-cropped.
 - Keep `404.html` visually aligned with the active theme and retain its
@@ -146,7 +145,7 @@ After pushing to `main`, wait for the `Deploy GitHub Pages` workflow and verify
 the public URL. A change is not fully complete until the live page loads.
 For deployment or certificate changes, verify HTTPS without bypassing certificate
 validation, then open the public URL in a real browser. For visible changes, check
-desktop and mobile layouts, images, both article expansion controls, and a
+desktop and mobile layouts, images, category groups, and a
 representative destination link. Report checks that could not run; an HTTP 200
 alone is not a browser or visual test. Documentation-only changes require
 `npm test` and `git diff --check`, but no new visual checks.
