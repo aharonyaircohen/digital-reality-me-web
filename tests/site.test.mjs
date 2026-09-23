@@ -7,6 +7,7 @@ import { decodeContentsResponse, githubFileUrl, homepageFeaturedImageUrl, isPubl
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
+const postHtml = await readFile(resolve(root, "post.html"), "utf8");
 const themes = await readFile(resolve(root, "themes.css"), "utf8");
 const styles = await readFile(resolve(root, "styles.css"), "utf8");
 const notFound = await readFile(resolve(root, "404.html"), "utf8");
@@ -80,6 +81,13 @@ test("published posts are visible by category without an archive or disclosure c
   assert.doesNotMatch(html, /class="section-nav"/);
   assert.equal((html.match(/<section class="post-group"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /<details|<summary|posts-entry|script\.js|ארכיון הפוסטים/);
+});
+
+test("post runtime URL changes when the GitHub image loader is updated", () => {
+  for (const page of [html, postHtml]) {
+    assert.match(page, /scripts\/posts\.mjs\?v=4ded655/);
+    assert.doesNotMatch(page, /scripts\/posts\.mjs\?v=20260923-runtime/);
+  }
 });
 
 test("course cards stay clean while smaller rows keep subtle chevrons", () => {
