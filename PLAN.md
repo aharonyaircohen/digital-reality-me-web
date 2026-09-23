@@ -1,52 +1,61 @@
-# Plan: Build the site from web content
+# Plan: Load posts when a visitor opens the site
 
-Status: plan only. The generator has not been merged into `main` or deployed.
+Status: plan only. This behavior has not been implemented or deployed.
 
-## Repositories
+## Goal
 
-- `aharonyaircohen/digital-reality-me-web` is the **public site** repository.
-  GitHub Pages serves it at `me.thedigitalreality.app`.
-- `aharonyaircohen/digital-reality-web-content` holds the post source files.
-  The build script loads them through GitHub's API. Site visitors receive
-  generated HTML and images; their browsers do not contact GitHub for posts.
+Keep the personal site on GitHub Pages. Keep post content in
+`aharonyaircohen/digital-reality-web-content` as the single source. Use one
+post-page HTML template in `aharonyaircohen/digital-reality-me-web`, with no
+generated post pages or site build step.
 
-## Target
+## Page-load flow
 
-Post text and media are edited in one place: `digital-reality-web-content`.
-A small build script turns published Hebrew posts into static pages using one
-post template. The homepage keeps its current simple layout and four visible
-topic groups. English and pending posts do not appear on the site.
+1. A visitor opens the homepage. Browser JavaScript calls the GitHub API for
+   the content repository's `index.json`, then renders links for published
+   Hebrew posts in the existing four visible topic groups. English and
+   unpublished posts are excluded.
+2. The visitor opens a post link such as `post.html?id=5007`. The browser calls
+   the GitHub API for that post's `metadata.json` and `source.html`, then fills
+   the single `post.html` template. The title, category, featured image, body,
+   and inline media use the site's existing layout and colors.
+3. Relative media references in `source.html` resolve to files in the public
+   content repository. The browser shows a small error message if an API call
+   fails or a post is unavailable. It never displays drafts.
 
-## Steps
+This is a **browser request on each page load**, including direct visits to a
+post URL. GitHub Actions does not fetch posts or generate HTML for them.
 
-1. Add a build script that calls the GitHub API to list post folders and fetch
-   each `metadata.json`, `source.html`, and referenced media. Use one source
-   commit SHA for the whole build. Validate status, language, title, post ID,
-   and media. A bad record stops the build with a clear error.
-2. Assign each included post to `מים`, `תודעה`, `תזונה`, or `בריאות` from its
-   content. Cover the category rules with representative tests and flag
-   ambiguous posts for review. Keep the homepage and post-page label aligned.
-3. Add one post HTML template. Generate homepage post cards and
-   `/posts/<wordpress-id>/` pages into ignored `dist/`. Copy only needed media,
-   optimize images, preserve linked PDFs, and reuse the site's existing CSS.
-4. Compare the generated site with the current Hebrew pages. Once content,
-   images, links, and categories match, remove the copied post files and
-   handwritten post cards from the site repository.
-5. Update the existing GitHub Pages workflow to build, test, and deploy `dist/`.
-   Run it on site pushes and daily to pick up source edits. Configure read
-   access to the source repository as part of the workflow setup. A failed
-   build must leave the last working public deployment in place.
+## Changes needed
+
+1. Make the content repository and media publicly readable. The browser must
+   use unauthenticated API requests; no GitHub token belongs in site JavaScript.
+2. Extend the content repository's existing `index.json` entries with the
+   display topic and featured-image path needed for homepage cards. Derive the
+   four topics from post content when maintaining the source index, and flag
+   ambiguous assignments for review. Keep this metadata with the content so
+   the homepage needs one API request instead of fetching every post.
+3. Replace hardcoded homepage post cards with a small browser script that
+   reads the index and renders the same simple lists. Keep the rest of the
+   homepage static.
+4. Add one `post.html` template and a small browser script for loading a post.
+   Validate the post ID and fetched status before rendering. Resolve the
+   featured image and inline media paths, and reject executable markup from
+   source HTML.
+5. Once the new pages work, remove copied post HTML and post images from the
+   site repository. New links use `post.html?id=<wordpress-id>`. Decide how to
+   handle existing `/posts/<id>/` links before removing those URLs.
 
 ## Verification
 
-- Test API responses, the published/Hebrew filter, category assignments,
-  missing data, escaping, media paths, and stable post URLs.
-- Build from the real source and confirm each expected Hebrew post appears once,
-  with no English or pending post in the output.
-- Check generated links and assets. Inspect the homepage, an image post, a table
-  post, and the 404 page locally at desktop and mobile widths.
-- After deployment, check the public site and confirm removed English post URLs
-  return the custom 404 page.
+- Test the published/Hebrew filter, categories, bad API responses, media paths,
+  HTML safety, and direct post links.
+- Serve the real site locally and check the homepage plus posts with a featured
+  image, inline image, and table on desktop and mobile.
+- Check the deployed site with the real public content API. Confirm a new
+  published source post appears after a reload without a site deployment, and
+  confirm unpublished and English posts remain hidden.
 
-Done when source edits require no copied post HTML in the site repository and
-the public site remains simple, static, and verified.
+Done when browser page loads obtain posts from the content repository, one
+template renders every post, and the site repository contains no copied post
+content.
