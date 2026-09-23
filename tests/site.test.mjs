@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir, stat } from "node:fs/promises";
+import { access, readFile, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { decodeContentsResponse, githubFileUrl, isPublishedHebrewPost, topicForPost } from "../scripts/posts.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
@@ -31,8 +32,8 @@ test("content library keeps its complete structure", () => {
   assert.equal((html.match(/class="featured-card"/g) ?? []).length, 4);
   assert.equal((html.match(/class="media-row media-row--community"/g) ?? []).length, 2);
   assert.equal((html.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
-  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 21);
-  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 12);
+  assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 0);
+  assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 0);
 });
 
 test("all documented themes are defined", () => {
@@ -83,7 +84,7 @@ test("published posts are visible by category without an archive or disclosure c
 
 test("course cards stay clean while smaller rows keep subtle chevrons", () => {
   assert.doesNotMatch(html, /class="card-arrow"/);
-  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 36);
+  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 3);
 });
 
 test("mobile layout keeps featured cards and category headings", () => {
@@ -153,63 +154,38 @@ test("web images stay lightweight", async () => {
 test("all public content cards have a real destination", () => {
   const cards = [...html.matchAll(/<a class="(?:featured-card|media-row[^"]*)" href="([^"]+)"/g)]
     .map((match) => match[1]);
-  assert.equal(cards.length, 40);
+  assert.equal(cards.length, 7);
   for (const destination of cards) {
-    assert.match(destination, /^(?:https:\/\/|posts\/\d+\/)/);
+    assert.match(destination, /^https:\/\//);
   }
 });
 
-test("homepage topics follow article context and match post-page labels", async () => {
-  await assert.rejects(access(resolve(root, "posts", "index.html")));
-  const groups = [...html.matchAll(/<section class="post-group"[^>]*>\s*<h3[^>]*>([^<]+)<\/h3>\s*<div class="article-list">([\s\S]*?)<\/div>\s*<\/section>/g)];
-  assert.deepEqual(groups.map(([, category]) => category), ["מים", "תודעה", "תזונה", "בריאות"]);
-
-  const topicByPost = new Map();
-  for (const [, category, cards] of groups) {
-    const ids = [...cards.matchAll(/href="posts\/(\d+)\/"/g)].map((match) => match[1]);
-    assert.ok(ids.length > 0, `${category} should contain posts`);
-    for (const id of ids) {
-      assert.ok(!topicByPost.has(id), `Post ${id} should appear in one topic`);
-      topicByPost.set(id, category);
-      const post = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
-      assert.match(post, new RegExp(`<span class="post-category">${category}</span>`));
-    }
-  }
-  assert.equal(topicByPost.size, 33);
-  for (const [id, category] of [["4522", "מים"], ["4667", "תודעה"], ["149", "תזונה"], ["148", "בריאות"]]) {
-    assert.equal(topicByPost.get(id), category);
-  }
+test("posts load from the GitHub API into one shared page template", async () => {
+  const postTemplate = await readFile(resolve(root, "post.html"), "utf8");
+  assert.match(html, /src="scripts\/posts\.mjs\?v=/);
+  assert.match(html, /id="post-groups" hidden/);
+  assert.match(postTemplate, /src="scripts\/posts\.mjs\?v=/);
+  assert.match(postTemplate, /id="post-content"[^>]*hidden/);
+  assert.match(postTemplate, /id="post-featured-image"/);
+  assert.match(postTemplate, /post-page-header/);
+  await access(resolve(root, "scripts", "posts.mjs"));
 });
 
-test("the homepage links every published post and no pending posts", async () => {
-  const ids = [...html.matchAll(/class="media-row media-row--(?:water|mind)" href="posts\/(\d+)\/"/g)]
-    .map((match) => match[1]);
-  assert.equal(ids.length, 33);
-  assert.equal(new Set(ids).size, 33);
-  for (const pendingId of ["1177", "1178", "1179"]) {
-    assert.ok(!ids.includes(pendingId));
-    await assert.rejects(access(resolve(root, "posts", pendingId, "index.html")));
-  }
+test("GitHub post filtering and topic assignment keep English and drafts out", () => {
+  const hebrew = { status: "publish", wordpress_id: 5007, title: "מים מזוקקים בטבע" };
+  assert.equal(isPublishedHebrewPost(hebrew), true);
+  assert.equal(isPublishedHebrewPost({ ...hebrew, status: "pending" }), false);
+  assert.equal(isPublishedHebrewPost({ ...hebrew, title: "English only" }), false);
+  assert.equal(topicForPost(hebrew), "מים");
+  assert.equal(topicForPost({ title: "אכילה מודעת" }), "תזונה");
+  assert.equal(topicForPost({ title: "שקט פנימי" }), "תודעה");
+  assert.equal(topicForPost({ title: "תנועה ובריאות הגוף" }), "בריאות");
+  assert.match(githubFileUrl("posts/5007/source.html"), /api\.github\.com\/repos\/aharonyaircohen\/digital-reality-web-content\/contents\/posts\/5007\/source\.html\?ref=main/);
+});
 
-  const directories = (await readdir(resolve(root, "posts"), { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
-  assert.deepEqual(directories.sort(), [...ids].sort());
-
-  for (const id of ids) {
-    const post = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
-    assert.match(post, /<article class="post-content"/);
-    assert.match(post, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/posts\/\d+\/">/);
-    assert.match(post, /<img class="post-featured-image" src="\.\/media\/featured\.webp"/);
-    assert.match(post, /href="\.\.\/\.\.\/#posts"/);
-    assert.ok(post.length > 1000, `Post ${id} should contain the full article`);
-    const featured = resolve(root, "posts", id, "media", "featured.webp");
-    assert.ok((await stat(featured)).size < 200_000, `${id} featured image should stay below 200 KB`);
-    for (const [, asset] of post.matchAll(/(?:src|href)="\.\/media\/([^"]+)"/g)) {
-      const path = resolve(root, "posts", id, "media", asset);
-      await access(path);
-      if (asset.endsWith(".webp")) {
-        assert.ok((await stat(path)).size < 200_000, `${id}/${asset} should stay below 200 KB`);
-      }
-    }
-  }
+test("GitHub API file contents decode as UTF-8", () => {
+  const json = JSON.stringify({ title: "מים" });
+  const content = Buffer.from(json).toString("base64");
+  assert.equal(decodeContentsResponse(JSON.stringify({ content })), json);
+  assert.equal(decodeContentsResponse("מים", "application/vnd.github.raw"), "מים");
 });

@@ -20,7 +20,9 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 ## Architecture
 
 - `index.html` contains profile text, social accounts, featured cards,
-  community links, and published post links grouped by their main topic.
+  community links, and topic placeholders for posts loaded in the browser.
+- `post.html` is the shared post template. `scripts/posts.mjs` loads published
+  post content from the public `digital-reality-web-content` repository.
 - `posts/<wordpress-id>/index.html` are a checked-in static snapshot of
   published posts from `digital-reality-web-content/posts/`.
 - `themes.css` contains the named color themes and is the color source of truth.
@@ -68,22 +70,20 @@ part of the site uses that image.
 
 ### Refresh published posts
 
-- Read each source post's `metadata.json` and include only `status: "publish"`.
-  Never copy pending or draft post content into this public repository.
+- The browser reads the source repository's `index.json` and includes only
+  Hebrew posts with `status: "publish"`. Never display pending or draft posts.
 - Read the title and full text, then assign each post to one homepage topic by
   its main subject. Use `מים` for water, hydration, filtration, and water systems;
   `תודעה` for meditation, emotions, and personal growth; `תזונה` for food and
   eating; and `בריאות` for body, movement, and other health subjects. Ignore
   missing or misleading source categories. Reuse these four topics unless a
   genuinely distinct collection needs a new one; do not add an uncategorized
-  group. Keep the homepage heading and post-page category label in sync. This
-  classification happens when refreshing the static HTML, not in the browser.
-  Post links use WordPress IDs.
-- Use each published post's `source.html` for its full text. Copy only media it
-  references; convert inline images to lightweight WebP files and update their
-  paths. Copy and optimize its `featured_media_source_url` image as
-  `posts/<id>/media/featured.webp` and show it in the post header. Keep linked
-  PDFs available beside the post.
+  group. Keep the homepage heading and post-page category label in sync. The
+  browser assigns topics from the title and excerpt. Post links use WordPress
+  IDs and open `post.html?id=<id>`.
+- Use each published post's `source.html` for its full text. The browser loads
+  referenced media from the content repository and shows the featured image in
+  the post header; do not copy post HTML or media into this repository.
 - Source post 4564 has an empty title in metadata. Its displayed title is
   `טבלה מורחבת — השקט הפנימי` until the source supplies one.
 - Run the post regression test and inspect the homepage category groups plus
@@ -125,8 +125,8 @@ part of the site uses that image.
 - Do not add a section tab bar or jump-navigation bar.
 - Course cards must not show arrows. Community, contact, and article rows may
   keep their small, unboxed chevrons.
-- Keep every category group visible as a simple heading and list, with no
-  expand/collapse control or JavaScript.
+- Keep the four category groups as simple headings and lists. JavaScript fills
+  them after the content API responds; do not add expand/collapse controls.
 - Preserve the mobile image framing rules: the hero must keep the face and bowl
   visible, featured cards stay 190px tall, and thumbnails remain center-cropped.
 - Keep `404.html` visually aligned with the active theme and retain its

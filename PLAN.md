@@ -1,6 +1,8 @@
 # Plan: Load posts when a visitor opens the site
 
-Status: plan only. This behavior has not been implemented or deployed.
+Status: partially implemented locally. The browser loader and shared post
+template are in place. Visitor access remains unverified because unauthenticated
+requests to the content repository currently return 404.
 
 ## Goal
 
@@ -42,9 +44,9 @@ post URL. GitHub Actions does not fetch posts or generate HTML for them.
    Validate the post ID and fetched status before rendering. Resolve the
    featured image and inline media paths, and reject executable markup from
    source HTML.
-5. Once the new pages work, remove copied post HTML and post images from the
-   site repository. New links use `post.html?id=<wordpress-id>`. Decide how to
-   handle existing `/posts/<id>/` links before removing those URLs.
+5. Once anonymous API reads work, remove copied post HTML and images from the
+   site repository. New links use `post.html?id=<wordpress-id>`. Keep existing
+   `/posts/<id>/` paths as short redirects to the shared template.
 
 ## Verification
 
@@ -56,6 +58,6 @@ post URL. GitHub Actions does not fetch posts or generate HTML for them.
   published source post appears after a reload without a site deployment, and
   confirm unpublished and English posts remain hidden.
 
-Done when browser page loads obtain posts from the content repository, one
-template renders every post, and the site repository contains no copied post
-content.
+Done when browser page loads obtain posts from the public content repository,
+one template renders every post, and the site repository contains no copied
+post content.

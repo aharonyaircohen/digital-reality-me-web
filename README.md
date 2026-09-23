@@ -1,9 +1,8 @@
 # Me
 
 A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
-Pages. It includes courses, communities, and published posts grouped by category
-on the homepage. Each post has a static reading page. It uses plain HTML and CSS,
-with no database, login, framework, or build process.
+Pages. Browser JavaScript loads posts from the `digital-reality-web-content`
+GitHub repository when visitors open the homepage or a post.
 
 ## Public site
 
@@ -12,13 +11,11 @@ with no database, login, framework, or build process.
 ## Update the page
 
 - Profile text and links: edit `index.html`.
-- Published posts: `index.html` groups links by the main subject inferred from
-  each article's title and full text. The same topic appears on the post page.
-  `posts/<wordpress-id>/index.html` contains each complete post. To refresh them,
-  use `digital-reality-web-content/posts/*/metadata.json` and `source.html`;
-  include only entries whose status is `publish`. Copy and optimize each featured image and
-  media referenced by the post. The browser never fetches the private source
-  repository.
+- Published posts: the browser reads the source repository's `index.json`, then
+  loads a selected post's `metadata.json` and `source.html` into the shared
+  `post.html` template. Only published Hebrew posts appear. The content
+  repository must allow public read access; no GitHub token is used in browser
+  code. See `PLAN.md` for remaining migration work.
 - Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
   in `index.html` and `404.html` (see `AGENTS.md`).
 - Spacing and layout: edit `styles.css`.

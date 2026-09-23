@@ -379,6 +379,17 @@ img {
   margin-inline: auto;
 }
 
+.post-load-status {
+  width: min(100%, 680px);
+  margin: 18px auto;
+  color: #bfdbfe;
+  text-align: center;
+}
+
+.post-list-row {
+  grid-template-columns: minmax(0, 1fr) 30px;
+}
+
 .post-group {
   margin-top: 28px;
 }
