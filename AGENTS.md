@@ -19,8 +19,10 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
 
 ## Architecture
 
-- `index.html` contains profile text, social accounts, featured cards,
-  community links, and topic placeholders for posts loaded in the browser.
+- `index.html` contains the homepage shell, icons, sharing metadata, and content
+  placeholders. `scripts/posts.mjs` fetches `pages/3988-yac/homepage.json` from the
+  content repository on visitor page load and renders the profile, social links,
+  course/community cards, and footer. Do not duplicate that content in this repo.
 - `post.html` is the shared post template. `scripts/posts.mjs` loads published
   post content from the public `digital-reality-web-content` repository.
 - Old `/posts/<id>/` routes are retired; do not recreate per-post files.
@@ -44,29 +46,21 @@ tool unless the owner explicitly asks for it.
 
 ## Updating content
 
-### Change the name or description
+### Change homepage content
 
-Edit the profile header in `index.html`. Also update the page title,
-description, and Open Graph metadata in `<head>` when relevant.
+Edit `pages/3988-yac/homepage.json` in the public content repository. It owns the
+name, description, hero image, social links, course/community cards, section
+headings, and footer text. Keep the existing simple JSON shape. Array order is
+display order; `footer.socialOrder` refers to icons in the shared `social` list.
 
-### Add or update a link
-
-Homepage course and community destinations are anchors in `index.html`. Use
-`featured-card` for courses and `media-row--community` or `media-row--contact`
-for direct contact. Post links are rendered by `scripts/posts.mjs` from source
-records; do not add static post links.
-
-1. Copy an existing card from the same section and preserve its class.
-2. Change its `href`, title, subtitle, and image path.
-3. For an external link, keep `target="_blank" rel="noopener noreferrer"`.
-4. Use a short Hebrew title and optional short subtitle.
-5. Keep cards under the matching section and preserve the order: courses,
-   community, posts grouped by topic.
-
-### Remove a link
-
-Delete the complete matching homepage anchor element. Source images may be
-shared with other sites; check references before removing them from the content repo.
+- To add/remove a card, add/remove its object in `courses.items` or
+  `community.items`. Use `kind: "contact"` for the contact row.
+- Use plain text, HTTPS destinations (or `mailto:` for social email), and
+  repository-relative image paths under `pages/3988-yac/media/`.
+- Do not add executable HTML or layout rules to the content JSON.
+- Static title, description, and sharing tags remain in each page's HTML for
+  crawlers. Update those separately when the site's identity changes.
+- Source images may be shared with other sites; check references before deleting.
 
 ### Refresh published posts
 
@@ -94,7 +88,8 @@ shared with other sites; check references before removing them from the content 
 1. Reuse an existing content-repository image when it matches the desired visual.
 2. If a site-specific image is missing, add it under `pages/3988-yac/media/` in
    the content repository. Prefer optimized WebP below 200 KB.
-3. Update the image URL in the affected HTML. Preserve meaningful hero alt text;
+3. Update the image path in `homepage.json` (or HTML for sharing metadata).
+   Preserve meaningful hero alt text;
    decorative card thumbnails use `alt=""`.
 4. Profile and sharing URLs appear in all page heads and homepage metadata.
    The sharing SVG and PNG are maintained alongside the source images.

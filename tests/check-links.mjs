@@ -3,13 +3,16 @@ import { execFile } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { fetchGitHubFile, HOMEPAGE_PATH, renderHomepage } from "../scripts/posts.mjs";
 
 const run = promisify(execFile);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
+const homepage = JSON.parse(await fetchGitHubFile(HOMEPAGE_PATH));
+const content = html + Object.values(renderHomepage(homepage)).join("\n");
 const urls = [...new Set(
-  [...html.matchAll(/href="(https:\/\/[^"#]+)"/g)].map((match) => match[1]),
+  [...content.matchAll(/(?:href|src)="(https:\/\/[^"#]+)"/g)].map((match) => match[1].replaceAll("&amp;", "&")),
 )];
 
 if (urls.length === 0) {

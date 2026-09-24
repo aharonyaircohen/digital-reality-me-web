@@ -4,6 +4,73 @@ const REF = "main";
 const API_ROOT = `https://api.github.com/repos/${OWNER}/${REPOSITORY}/contents/`;
 const RAW_ROOT = `https://raw.githubusercontent.com/${OWNER}/${REPOSITORY}/${REF}/`;
 const TOPICS = ["מים", "תודעה", "תזונה", "בריאות"];
+export const HOMEPAGE_PATH = "pages/3988-yac/homepage.json";
+
+function escapeHTML(value) {
+  if (typeof value !== "string") throw new Error("Expected homepage text");
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function homepageLink(url) {
+  if (typeof url !== "string" || !/^(https:\/\/|mailto:)/.test(url)) throw new Error("Invalid homepage link");
+  return `href="${escapeHTML(url)}"${url.startsWith("https://") ? ' target="_blank" rel="noopener noreferrer"' : ""}`;
+}
+
+function homepageImage(path) {
+  if (typeof path !== "string" || !path.startsWith("pages/3988-yac/media/")
+    || path.split("/").some((part) => !part || part === "." || part === "..")) throw new Error("Invalid homepage image");
+  return escapeHTML(RAW_ROOT + path.split("/").map(encodeURIComponent).join("/"));
+}
+
+// Content is plain text and URLs; markup and layout remain owned by this site.
+export function renderHomepage(data) {
+  const socialLink = (item) => {
+    if (!item || !["instagram", "facebook", "email"].includes(item.icon)) throw new Error("Unknown social icon");
+    return `<a ${homepageLink(item.url)} aria-label="${escapeHTML(item.label)}"><svg aria-hidden="true"><use href="#icon-${item.icon}"></use></svg></a>`;
+  };
+  const heading = (section, id) => `<div class="section-heading"><p>${escapeHTML(section.kicker)}</p><h2 id="${id}-title">${escapeHTML(section.title)}</h2></div>`;
+  const course = (item) => `<a class="featured-card" ${homepageLink(item.url)}>
+    <img src="${homepageImage(item.image)}" alt="" width="720" height="720">
+    <span class="featured-overlay" aria-hidden="true"></span>
+    <span class="featured-copy"><small>${escapeHTML(item.subtitle)}</small><strong>${escapeHTML(item.title)}</strong></span>
+  </a>`;
+  const community = (item) => `<a class="media-row media-row--${item.kind === "contact" ? "contact" : "community"}" ${homepageLink(item.url)}>
+    <img src="${homepageImage(item.image)}" alt="" width="240" height="160" loading="lazy">
+    <span><strong>${escapeHTML(item.title)}</strong><small>${escapeHTML(item.subtitle)}</small></span>
+    <span class="row-arrow" aria-hidden="true">←</span>
+  </a>`;
+  return {
+    profile: `<img class="hero-image" src="${homepageImage(data.hero.image)}" alt="${escapeHTML(data.hero.alt)}" width="1000" height="822" style="--image-position: center 43%; --image-position-mobile: center 38%;">
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="hero-kicker">${escapeHTML(data.kicker)}</p>
+        <h1>${escapeHTML(data.name)}</h1>
+        <p class="hero-description">${escapeHTML(data.description)}</p>
+        <nav class="social-pills" aria-label="רשתות חברתיות ויצירת קשר">${data.social.map(socialLink).join("")}</nav>
+      </div>`,
+    courses: heading(data.courses, "courses") + `<div class="featured-list">${data.courses.items.map(course).join("")}</div>`,
+    community: heading(data.community, "community") + `<div class="row-list">${data.community.items.map(community).join("")}</div>`,
+    "profile-footer": `<nav class="footer-social" aria-label="רשתות חברתיות">${data.footer.socialOrder.map((icon) => socialLink(data.social.find((item) => item.icon === icon))).join("")}</nav><p>${escapeHTML(data.footer.text)}</p>`,
+    "posts-kicker": escapeHTML(data.posts.kicker),
+    "posts-title": escapeHTML(data.posts.title),
+  };
+}
+
+export async function loadProfile(page = document, fetchImpl = fetch) {
+  const status = page.querySelector("#homepage-load-status");
+  try {
+    const data = JSON.parse(await fetchGitHubFile(HOMEPAGE_PATH, fetchImpl));
+    const sections = renderHomepage(data);
+    for (const [id, markup] of Object.entries(sections)) {
+      const target = page.getElementById(id);
+      target.innerHTML = markup;
+      target.hidden = false;
+    }
+    status.remove();
+  } catch {
+    status.textContent = "לא ניתן לטעון את פרטי האתר כרגע. אפשר לרענן את העמוד ולנסות שוב.";
+  }
+}
 
 export function githubFileUrl(path) {
   return `${API_ROOT}${path.split("/").map(encodeURIComponent).join("/")}?ref=${REF}`;
@@ -177,6 +244,7 @@ async function loadPost() {
 }
 
 if (typeof document !== "undefined") {
+  if (document.querySelector("#profile")) loadProfile();
   if (document.querySelector("#post-groups")) loadHomepage();
   if (document.querySelector("#post-content")) loadPost();
 }

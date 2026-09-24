@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { decodeContentsResponse, githubFileUrl, homepageFeaturedImageUrl, isPublishedHebrewPost, topicForPost } from "../scripts/posts.mjs";
+import { HOMEPAGE_PATH, loadProfile, renderHomepage, decodeContentsResponse, githubFileUrl, homepageFeaturedImageUrl, isPublishedHebrewPost, topicForPost } from "../scripts/posts.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
@@ -11,6 +11,23 @@ const postHtml = await readFile(resolve(root, "post.html"), "utf8");
 const styles = await readFile(resolve(root, "assets/site.css"), "utf8");
 const themes = styles;
 const notFound = await readFile(resolve(root, "404.html"), "utf8");
+
+// Synthetic content exercises the template without keeping a copy of live content.
+const card = { title: "כותרת", subtitle: "תיאור", url: "https://example.org/course", image: "pages/3988-yac/media/example.webp" };
+const profile = {
+  name: "שם לדוגמה", kicker: "פתיח", description: "תיאור לדוגמה",
+  hero: { image: card.image, alt: "תיאור תמונה" },
+  social: [
+    { icon: "instagram", label: "Instagram", url: "https://example.org/instagram" },
+    { icon: "facebook", label: "Facebook", url: "https://example.org/facebook" },
+    { icon: "email", label: "Email", url: "mailto:example@example.org" },
+  ],
+  courses: { kicker: "ללמוד", title: "קורסים וסדנאות", items: [card, card] },
+  community: { kicker: "להתחבר", title: "קבוצות ומעגלים", items: [{ ...card, kind: "community" }, { ...card, kind: "contact" }] },
+  posts: { kicker: "לקריאה", title: "מאמרים" },
+  footer: { text: "סיום", socialOrder: ["instagram", "email", "facebook"] },
+};
+const rendered = Object.values(renderHomepage(profile)).join("\n");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
@@ -24,14 +41,14 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
 
 test("links are grouped for easier scanning", () => {
   for (const section of ["קורסים וסדנאות", "קבוצות ומעגלים", "מאמרים"]) {
-    assert.match(html, new RegExp(section));
+    assert.match(rendered, new RegExp(section));
   }
 });
 
 test("content library keeps its complete structure", () => {
-  assert.equal((html.match(/class="featured-card"/g) ?? []).length, 4);
-  assert.equal((html.match(/class="media-row media-row--community"/g) ?? []).length, 2);
-  assert.equal((html.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
+  assert.equal((rendered.match(/class="featured-card"/g) ?? []).length, 2);
+  assert.equal((rendered.match(/class="media-row media-row--community"/g) ?? []).length, 1);
+  assert.equal((rendered.match(/class="media-row media-row--contact"/g) ?? []).length, 1);
   assert.equal((html.match(/class="media-row media-row--water"/g) ?? []).length, 0);
   assert.equal((html.match(/class="media-row media-row--mind"/g) ?? []).length, 0);
 });
@@ -71,9 +88,9 @@ test("header, content, shell, and footer share one seamless background", () => {
 test("social links use the shared polished icon set", () => {
   for (const icon of ["instagram", "facebook", "email"]) {
     assert.match(html, new RegExp(`<symbol id="icon-${icon}"`));
-    assert.equal((html.match(new RegExp(`href="#icon-${icon}"`, "g")) ?? []).length, 2);
+    assert.equal((rendered.match(new RegExp(`href="#icon-${icon}"`, "g")) ?? []).length, 2);
   }
-  assert.equal((html.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
+  assert.equal((rendered.match(/aria-label="(?:Instagram|Facebook|Email)"/g) ?? []).length, 6);
 });
 
 test("published posts are visible by category without an archive or disclosure control", () => {
@@ -84,14 +101,14 @@ test("published posts are visible by category without an archive or disclosure c
 
 test("post runtime URL changes when the GitHub image loader is updated", () => {
   for (const page of [html, postHtml]) {
-    assert.match(page, /scripts\/posts\.mjs\?v=4ded655/);
+    assert.match(page, /scripts\/posts\.mjs\?v=20260924-homepage/);
     assert.doesNotMatch(page, /scripts\/posts\.mjs\?v=20260923-runtime/);
   }
 });
 
 test("course cards stay clean while smaller rows keep subtle chevrons", () => {
-  assert.doesNotMatch(html, /class="card-arrow"/);
-  assert.equal((html.match(/class="row-arrow"/g) ?? []).length, 3);
+  assert.doesNotMatch(rendered, /class="card-arrow"/);
+  assert.equal((rendered.match(/class="row-arrow"/g) ?? []).length, 2);
 });
 
 test("mobile layout keeps featured cards and category headings", () => {
@@ -109,7 +126,7 @@ test("post pages use the site palette and align featured images with article wid
 test("images support optional focal points without CSS edits", () => {
   assert.match(styles, /object-position: var\(--image-position, center 45%\)/);
   assert.match(styles, /object-position: var\(--image-position, center\)/);
-  assert.match(html, /--image-position-mobile: center 38%/);
+  assert.match(rendered, /--image-position-mobile: center 38%/);
 });
 
 test("custom 404 page returns visitors to the profile", () => {
@@ -126,7 +143,7 @@ test("custom domain configuration is present", async () => {
 });
 
 test("external blank-target links are protected", () => {
-  const blankLinks = html.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
+  const blankLinks = rendered.match(/<a\b[^>]*target="_blank"[^>]*>/g) ?? [];
   assert.ok(blankLinks.length >= 7);
   for (const link of blankLinks) {
     assert.match(link, /rel="noopener noreferrer"/);
@@ -135,7 +152,7 @@ test("external blank-target links are protected", () => {
 
 test("all page images and sharing metadata use the public content repository", () => {
   const mediaRoot = "https://raw.githubusercontent.com/aharonyaircohen/digital-reality-web-content/main/pages/3988-yac/media/";
-  for (const page of [html, postHtml, notFound]) {
+  for (const page of [html, postHtml, notFound, rendered]) {
     const imageUrls = [
       ...[...page.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]),
       ...[...page.matchAll(/<link rel="icon" href="([^"]+)"/g)].map((match) => match[1]),
@@ -145,7 +162,7 @@ test("all page images and sharing metadata use the public content repository", (
     for (const url of imageUrls) assert.ok(url.startsWith(mediaRoot), `Unexpected image source: ${url}`);
     assert.doesNotMatch(page, /assets\/images\//);
   }
-  assert.equal((html.match(/<img[^>]+src="https:/g) || []).length, 8);
+  assert.equal((rendered.match(/<img[^>]+src="https:/g) || []).length, 5);
 });
 
 test("each page loads one shared stylesheet from a valid local path", async () => {
@@ -158,9 +175,9 @@ test("each page loads one shared stylesheet from a valid local path", async () =
 });
 
 test("all public content cards have a real destination", () => {
-  const cards = [...html.matchAll(/<a class="(?:featured-card|media-row[^"]*)" href="([^"]+)"/g)]
+  const cards = [...rendered.matchAll(/<a class="(?:featured-card|media-row[^"]*)" href="([^"]+)"/g)]
     .map((match) => match[1]);
-  assert.equal(cards.length, 7);
+  assert.equal(cards.length, 4);
   for (const destination of cards) {
     assert.match(destination, /^https:\/\//);
   }
@@ -217,4 +234,58 @@ test("homepage featured images resolve to the public content repository safely",
   );
   assert.equal(homepageFeaturedImageUrl({ path: "posts/5007" }), null);
   assert.equal(homepageFeaturedImageUrl({ path: "posts/5007", featured_media_path: "../../private.jpg" }), null);
+});
+
+function profilePage() {
+  const nodes = Object.fromEntries(["profile", "courses", "community", "profile-footer", "posts-kicker", "posts-title"].map((id) => [id, { hidden: true, innerHTML: "" }]));
+  const status = { textContent: "loading", removed: false, remove() { this.removed = true; } };
+  return { nodes, status, querySelector: () => status, getElementById: (id) => nodes[id] };
+}
+
+test("homepage requests the content JSON on page load and renders current values", async () => {
+  const page = profilePage();
+  const changed = structuredClone(profile);
+  changed.name = "שם מעודכן";
+  changed.courses.items = [{ ...card, title: "קורס חדש", url: "https://example.org/new" }];
+  let requested;
+  await loadProfile(page, async (url, options) => {
+    requested = { url, options };
+    return new Response(JSON.stringify(changed), { headers: { "content-type": "application/vnd.github.raw+json" } });
+  });
+  assert.equal(requested.url, githubFileUrl(HOMEPAGE_PATH));
+  assert.equal(requested.options.cache, "no-store");
+  assert.match(page.nodes.profile.innerHTML, /שם מעודכן/);
+  assert.match(page.nodes.courses.innerHTML, /קורס חדש/);
+  assert.match(page.nodes.courses.innerHTML, /https:\/\/example.org\/new/);
+  assert.equal((page.nodes.courses.innerHTML.match(/class="featured-card"/g) || []).length, 1);
+  assert.ok(Object.values(page.nodes).every((node) => !node.hidden));
+  assert.equal(page.status.removed, true);
+  assert.match(html, /id="profile" hidden/);
+  assert.doesNotMatch(html, /class="featured-card"|instagram.com|mailto:|chat.whatsapp.com/);
+});
+
+test("homepage failures leave a readable message without exposing empty sections", async () => {
+  for (const fetchImpl of [
+    async () => new Response("limited", { status: 403 }),
+    async () => new Response("invalid json", { headers: { "content-type": "application/vnd.github.raw+json" } }),
+    async () => new Response("{}", { headers: { "content-type": "application/vnd.github.raw+json" } }),
+  ]) {
+    const page = profilePage();
+    await loadProfile(page, fetchImpl);
+    assert.match(page.status.textContent, /לא ניתן לטעון/);
+    assert.equal(page.status.removed, false);
+    assert.ok(Object.values(page.nodes).every((node) => node.hidden));
+  }
+});
+
+test("homepage JSON is text, not executable markup or arbitrary image locations", () => {
+  const changed = structuredClone(profile);
+  changed.name = '<img src=x onerror="alert(1)">';
+  assert.match(renderHomepage(changed).profile, /&lt;img/);
+  assert.doesNotMatch(renderHomepage(changed).profile, /<img src=x/);
+  changed.social[0].url = "javascript:alert(1)";
+  assert.throws(() => renderHomepage(changed), /Invalid homepage link/);
+  changed.social[0].url = profile.social[0].url;
+  changed.hero.image = "pages/3988-yac/media/../private.jpg";
+  assert.throws(() => renderHomepage(changed), /Invalid homepage image/);
 });

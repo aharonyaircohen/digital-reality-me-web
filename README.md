@@ -1,7 +1,7 @@
 # Me
 
 A personal profile and content library for Aharon Yair Cohen, hosted with GitHub
-Pages. Browser JavaScript loads posts from the `digital-reality-web-content`
+Pages. Browser JavaScript loads homepage content and posts from the `digital-reality-web-content`
 GitHub repository when visitors open the homepage or a post.
 
 ## Public site
@@ -10,7 +10,16 @@ GitHub repository when visitors open the homepage or a post.
 
 ## Update the page
 
-- Profile text and links: edit `index.html`.
+- Profile text, social links, course/community cards, and section headings: edit
+  [`pages/3988-yac/homepage.json`](https://github.com/aharonyaircohen/digital-reality-web-content/blob/main/pages/3988-yac/homepage.json)
+  in the content repository. The browser fetches it through the GitHub API on
+  page load using the existing `scripts/posts.mjs` loader. No site deployment is
+  needed for these edits; GitHub may briefly cache its file responses.
+- `index.html` keeps the page shell and icons. Rendering templates live in
+  `scripts/posts.mjs`. Static title, description, favicon, and sharing metadata
+  remain in the HTML for crawlers that do not execute JavaScript; update those
+  separately when changing the site's identity. Homepage content and posts load
+  independently, each with a visible message if its request fails.
 - Published posts: the browser reads the source repository's `index.json`, then
   loads a selected post's `metadata.json` and `source.html` into the shared
   `post.html` template. Only published Hebrew posts appear. No GitHub token is
@@ -20,8 +29,8 @@ GitHub repository when visitors open the homepage or a post.
 - Homepage images and sharing artwork: use `pages/3988-yac/media/` in the public
   content repository. The site references those files directly; no images are
   copied into this repository.
-- Per-image crop: set `--image-position` on an image; the hero also supports
-  `--image-position-mobile`.
+- Image framing stays in the site template and CSS; changing content does not
+  change the layout.
 - Full agent instructions: read `AGENTS.md` before making changes.
 
 ## Local checks and preview
