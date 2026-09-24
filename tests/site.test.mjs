@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir, stat } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -8,8 +8,8 @@ import { decodeContentsResponse, githubFileUrl, homepageFeaturedImageUrl, isPubl
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(resolve(root, "index.html"), "utf8");
 const postHtml = await readFile(resolve(root, "post.html"), "utf8");
-const themes = await readFile(resolve(root, "themes.css"), "utf8");
-const styles = await readFile(resolve(root, "styles.css"), "utf8");
+const styles = await readFile(resolve(root, "assets/site.css"), "utf8");
+const themes = styles;
 const notFound = await readFile(resolve(root, "404.html"), "utf8");
 
 test("page declares Hebrew RTL, its theme, and essential metadata", () => {
@@ -17,10 +17,9 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
   assert.match(html, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/">/);
-  assert.match(html, /<meta property="og:image" content="https:\/\/me\.thedigitalreality\.app\/assets\/images\/social-preview\.png\?v=[^"]+">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/raw\.githubusercontent\.com\/aharonyaircohen\/digital-reality-web-content\/main\/pages\/3988-yac\/media\/social-preview\.png\?v=[^"]+">/);
   assert.doesNotMatch(html, /my-linktree/);
-  assert.match(html, /<link rel="stylesheet" href="themes\.css\?v=[^"]+">/);
-  assert.match(html, /<link rel="stylesheet" href="styles\.css\?v=[^"]+">/);
+  assert.match(html, /<link rel="stylesheet" href="assets\/site\.css\?v=[^"]+">/);
 });
 
 test("links are grouped for easier scanning", () => {
@@ -134,29 +133,28 @@ test("external blank-target links are protected", () => {
   }
 });
 
-test("all local image files exist", async () => {
-  const imagePaths = [...new Set(
-    [...html.matchAll(/(?:src|href)="(assets\/images\/[^"]+)"/g)]
-      .map((match) => match[1]),
-  )];
-  assert.ok(imagePaths.length >= 7);
-  await Promise.all(imagePaths.map((path) => access(resolve(root, path))));
-  await access(resolve(root, "assets/images/social-preview.png"));
+test("all page images and sharing metadata use the public content repository", () => {
+  const mediaRoot = "https://raw.githubusercontent.com/aharonyaircohen/digital-reality-web-content/main/pages/3988-yac/media/";
+  for (const page of [html, postHtml, notFound]) {
+    const imageUrls = [
+      ...[...page.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]),
+      ...[...page.matchAll(/<link rel="icon" href="([^"]+)"/g)].map((match) => match[1]),
+      ...[...page.matchAll(/<meta (?:property="og:image"|name="twitter:image") content="([^"]+)"/g)].map((match) => match[1]),
+    ];
+    assert.ok(imageUrls.length > 0);
+    for (const url of imageUrls) assert.ok(url.startsWith(mediaRoot), `Unexpected image source: ${url}`);
+    assert.doesNotMatch(page, /assets\/images\//);
+  }
+  assert.equal((html.match(/<img[^>]+src="https:/g) || []).length, 8);
 });
 
-test("web images stay lightweight", async () => {
-  const webImages = [...new Set(
-    [...html.matchAll(/src="(assets\/images\/[^"]+\.webp)"/g)]
-      .map((match) => match[1]),
-  )];
-
-  for (const image of webImages) {
-    const details = await stat(resolve(root, image));
-    assert.ok(details.size < 200_000, `${image} should stay below 200 KB`);
+test("each page loads one shared stylesheet from a valid local path", async () => {
+  for (const page of [html, postHtml, notFound]) {
+    const sheets = [...page.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => match[1]);
+    assert.equal(sheets.length, 1);
+    assert.match(sheets[0], /^\/?assets\/site\.css\?v=/);
+    await access(resolve(root, sheets[0].replace(/^\//, "").split("?")[0]));
   }
-
-  const preview = await stat(resolve(root, "assets/images/social-preview.png"));
-  assert.ok(preview.size < 1_000_000, "social preview should stay below 1 MB");
 });
 
 test("all public content cards have a real destination", () => {
@@ -179,16 +177,13 @@ test("posts load from the GitHub API into one shared page template", async () =>
   await access(resolve(root, "scripts", "posts.mjs"));
 });
 
-test("old Hebrew post URLs redirect to the shared template without copied media", async () => {
-  const postIds = await readdir(resolve(root, "posts"));
-  assert.ok(postIds.length > 0);
-  for (const id of postIds) {
-    assert.match(id, /^\d+$/);
-    const redirect = await readFile(resolve(root, "posts", id, "index.html"), "utf8");
-    assert.match(redirect, new RegExp(`post\\.html\\?id=${id}`));
-    await assert.rejects(access(resolve(root, "posts", id, "media")));
+test("retired routes and copied media are absent; posts use the shared template", async () => {
+  for (const path of ["posts", "assets/images", "PLAN.md", "styles.css", "themes.css"]) {
+    await assert.rejects(access(resolve(root, path)));
   }
-  await assert.rejects(access(resolve(root, "posts", "142", "index.html")));
+  const runtime = await readFile(resolve(root, "scripts/posts.mjs"), "utf8");
+  assert.match(runtime, /link\.href = `post\.html\?id=/);
+  assert.doesNotMatch(html, /href="\/?posts\//);
 });
 
 test("GitHub post filtering and topic assignment keep English and drafts out", () => {

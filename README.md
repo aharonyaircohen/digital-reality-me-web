@@ -14,15 +14,14 @@ GitHub repository when visitors open the homepage or a post.
 - Published posts: the browser reads the source repository's `index.json`, then
   loads a selected post's `metadata.json` and `source.html` into the shared
   `post.html` template. Only published Hebrew posts appear. No GitHub token is
-  used in browser code. Old `/posts/<id>/` addresses redirect to the shared
-  template.
-- Theme colors: edit `themes.css`; keep `data-theme` and theme metadata aligned
-  in `index.html` and `404.html` (see `AGENTS.md`).
-- Spacing and layout: edit `styles.css`.
-- Hero and content images: add optimized WebP files under `assets/images/content/`.
+  used in browser code. Old `/posts/<id>/` addresses are retired.
+- Colors and layout: edit `assets/site.css`; keep page theme metadata aligned
+  (see `AGENTS.md`).
+- Homepage images and sharing artwork: use `pages/3988-yac/media/` in the public
+  content repository. The site references those files directly; no images are
+  copied into this repository.
 - Per-image crop: set `--image-position` on an image; the hero also supports
   `--image-position-mobile`.
-- Profile and social-preview assets: update files under `assets/images/`.
 - Full agent instructions: read `AGENTS.md` before making changes.
 
 ## Local checks and preview

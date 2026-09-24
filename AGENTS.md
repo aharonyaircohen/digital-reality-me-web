@@ -23,12 +23,11 @@ migration instructions. Documenting Vercel does not authorize switching hosts.
   community links, and topic placeholders for posts loaded in the browser.
 - `post.html` is the shared post template. `scripts/posts.mjs` loads published
   post content from the public `digital-reality-web-content` repository.
-- `posts/<wordpress-id>/index.html` are small redirects that preserve old post
-  URLs. Post content is loaded into the shared `post.html` template.
-- `themes.css` contains the named color themes and is the color source of truth.
-- `styles.css` contains the complete visual design.
-- `assets/images/content/` contains hero, course, community, and article images.
-- `assets/images/` also contains profile and social-sharing assets.
+- Old `/posts/<id>/` routes are retired; do not recreate per-post files.
+- `assets/site.css` contains shared colors, themes, and layout.
+- Homepage images, profile, and sharing artwork live in the content repository
+  under `pages/3988-yac/media/`. Article images live with their source posts.
+  Reference these public files directly; do not copy images into this repo.
 - `.github/workflows/pages.yml` deploys the repository to GitHub Pages.
 - `.github/workflows/check-links.yml` checks external destinations every week.
 - `tests/site.test.mjs` checks the important structure and local assets.
@@ -52,9 +51,10 @@ description, and Open Graph metadata in `<head>` when relevant.
 
 ### Add or update a link
 
-Every destination is an anchor in `index.html`. Use `featured-card` for courses,
-`media-row--community` or `media-row--contact` for direct contact, and a
-`media-row` inside the matching `post-group` for published posts.
+Homepage course and community destinations are anchors in `index.html`. Use
+`featured-card` for courses and `media-row--community` or `media-row--contact`
+for direct contact. Post links are rendered by `scripts/posts.mjs` from source
+records; do not add static post links.
 
 1. Copy an existing card from the same section and preserve its class.
 2. Change its `href`, title, subtitle, and image path.
@@ -65,8 +65,8 @@ Every destination is an anchor in `index.html`. Use `featured-card` for courses,
 
 ### Remove a link
 
-Delete the complete matching anchor element. Delete its image only when no other
-part of the site uses that image.
+Delete the complete matching homepage anchor element. Source images may be
+shared with other sites; check references before removing them from the content repo.
 
 ### Refresh published posts
 
@@ -91,18 +91,16 @@ part of the site uses that image.
 
 ### Change an image
 
-1. Put the new image in `assets/images/` with a short lowercase filename.
-2. Use WebP for page images and keep each file below 200 KB.
-3. Hero and featured images may be large landscape or square images. Article
-   thumbnails may use any ratio because CSS crops them safely.
-4. Update the matching path in `index.html`.
-5. Keep meaningful `alt` text for the profile image. Decorative link thumbnails
-   should keep `alt=""` because the adjacent link text already describes them.
-6. When profile branding changes, update `social-preview.svg`, regenerate
-   `social-preview.png` at 1200×630, and visually inspect the PNG.
-7. To adjust a crop without editing CSS, add
-   `style="--image-position: 50% 35%;"` to that `<img>`. The hero may also set
-   `--image-position-mobile` for a separate narrow-screen crop.
+1. Reuse an existing content-repository image when it matches the desired visual.
+2. If a site-specific image is missing, add it under `pages/3988-yac/media/` in
+   the content repository. Prefer optimized WebP below 200 KB.
+3. Update the image URL in the affected HTML. Preserve meaningful hero alt text;
+   decorative card thumbnails use `alt=""`.
+4. Profile and sharing URLs appear in all page heads and homepage metadata.
+   The sharing SVG and PNG are maintained alongside the source images.
+5. Preserve image focal points via `--image-position` and, for the hero,
+   `--image-position-mobile`.
+6. Verify every changed public image URL and visually inspect the page.
 
 ## Updating the design
 
@@ -113,11 +111,11 @@ part of the site uses that image.
   artwork when the branding changes. Update tests that intentionally assert the
   active theme or palette to match the approved change.
 - Available themes are `ocean-blue`, `sky`, and `deep-water`.
-- Change shared colors only through the variables in `themes.css`.
+- Change shared colors through the variables in `assets/site.css`.
 - A new theme must define the same tokens and must not duplicate layout rules.
-- After changing `themes.css` or `styles.css`, update the `?v=` value on both
-  stylesheet links in both `index.html` and `404.html` so browsers do not show
-  stale colors. Use matching versions for the same asset across both pages.
+- After changing `assets/site.css`, update its `?v=` value in `index.html`,
+  `post.html`, and `404.html`. After changing `scripts/posts.mjs`, update its
+  `?v=` value in the homepage and post template. Match versions across pages.
 - Keep the hero, content area, shell, and footer on the same `--content-base`
   background. Do not reintroduce a separate header or footer color or divider.
 - Keep the desktop shell at 760px and its primary content at 680px unless a
@@ -144,7 +142,7 @@ Before committing:
    `/404.html` at mobile and desktop widths. Verify missing-path 404 behavior on
    the deployed site, since the Python server uses its own error page.
 3. Check every changed external link.
-4. Confirm every local image path loads.
+4. Confirm every changed content-repository image URL loads.
 5. Confirm Hebrew text still reads right-to-left.
 6. Run `npm run check:links` when link destinations change.
 
