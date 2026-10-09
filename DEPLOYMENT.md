@@ -9,7 +9,13 @@
 - DNS records: `@` ALIAS and `www` CNAME point to `aharonyaircohen.github.io`.
 - `www.thedigitalreality.net` redirects to the apex through GitHub Pages.
 - Existing Hermes and other subdomain records are independent and unchanged.
-- GitHub Pages custom domain: `thedigitalreality.net`; Enforce HTTPS enabled.
+- GitHub Pages custom domain: `thedigitalreality.net`.
+- HTTPS certificate issuance is pending. Enable Enforce HTTPS once the certificate
+  exists, then verify both apex HTTPS and the www redirect without bypassing TLS checks.
+- The previous `me.thedigitalreality.app` custom domain was replaced; its Vercel
+  DNS was not changed in this migration.
+- Existing homepage course links use legacy WordPress query URLs on `.net`;
+  GitHub Pages does not provide those course pages. Retarget them separately.
 
 This is a plain static site. GitHub Pages is sufficient; Vercel hosting is
 optional. Neither option needs a database, framework, or application server.
