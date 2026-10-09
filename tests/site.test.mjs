@@ -33,7 +33,7 @@ test("page declares Hebrew RTL, its theme, and essential metadata", () => {
   assert.match(html, /<html lang="he" dir="rtl" data-theme="deep-water">/);
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta property="og:title"/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/me\.thedigitalreality\.app\/">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/thedigitalreality\.net\/">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/raw\.githubusercontent\.com\/aharonyaircohen\/digital-reality-web-content\/main\/pages\/3988-yac\/media\/social-preview\.png\?v=[^"]+">/);
   assert.doesNotMatch(html, /my-linktree/);
   assert.match(html, /<link rel="stylesheet" href="assets\/site\.css\?v=[^"]+">/);
@@ -138,7 +138,7 @@ test("custom 404 page returns visitors to the profile", () => {
 
 test("custom domain configuration is present", async () => {
   const cname = await readFile(resolve(root, "CNAME"), "utf8");
-  assert.equal(cname.trim(), "me.thedigitalreality.app");
+  assert.equal(cname.trim(), "thedigitalreality.net");
   assert.doesNotMatch(html, /aharonyaircohen\.github\.io\/me/);
 });
 

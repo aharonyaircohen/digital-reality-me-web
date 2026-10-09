@@ -10,9 +10,9 @@ or build step.
 
 The public site is:
 
-`https://me.thedigitalreality.app/`
+`https://thedigitalreality.net/`
 
-GitHub Pages remains the host. Vercel provides DNS for the custom domain only.
+GitHub Pages remains the host. Hostinger provides DNS for the custom domain only.
 Read `DEPLOYMENT.md` before changing hosting, DNS, or HTTPS settings. It includes
 the current deployment process, certificate troubleshooting, and optional Vercel
 migration instructions. Documenting Vercel does not authorize switching hosts.

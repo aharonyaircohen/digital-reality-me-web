@@ -6,7 +6,7 @@ GitHub repository when visitors open the homepage or a post.
 
 ## Public site
 
-<https://me.thedigitalreality.app/>
+<https://thedigitalreality.net/>
 
 ## Update the page
 
@@ -57,6 +57,6 @@ paths; test a nonexistent URL on the deployed site to verify that behavior.
 
 Pushing to `main` automatically deploys the current version to GitHub Pages.
 
-GitHub Pages hosts the site and provides HTTPS. Vercel currently manages DNS
+GitHub Pages hosts the site and provides HTTPS. Hostinger currently manages DNS
 only. See [deployment instructions](DEPLOYMENT.md) for normal publishing,
 certificate troubleshooting, and an optional move to Vercel hosting.

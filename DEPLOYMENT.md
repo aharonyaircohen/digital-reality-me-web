@@ -3,11 +3,13 @@
 ## Current setup
 
 - Repository: `aharonyaircohen/digital-reality-me-web`, production branch `main`.
-- Public URL: <https://me.thedigitalreality.app/>.
+- Public URL: <https://thedigitalreality.net/>.
 - Hosting: GitHub Pages, using `.github/workflows/pages.yml`.
-- DNS provider: Vercel, for `thedigitalreality.app`.
-- DNS record: `me` CNAME `aharonyaircohen.github.io`.
-- GitHub Pages custom domain: `me.thedigitalreality.app`; Enforce HTTPS enabled.
+- DNS provider: Hostinger, for `thedigitalreality.net`.
+- DNS records: `@` ALIAS and `www` CNAME point to `aharonyaircohen.github.io`.
+- `www.thedigitalreality.net` redirects to the apex through GitHub Pages.
+- Existing Hermes and other subdomain records are independent and unchanged.
+- GitHub Pages custom domain: `thedigitalreality.net`; Enforce HTTPS enabled.
 
 This is a plain static site. GitHub Pages is sufficient; Vercel hosting is
 optional. Neither option needs a database, framework, or application server.
@@ -45,13 +47,14 @@ Read the current state rather than assuming a certificate is still pending:
 
 ```bash
 gh api repos/aharonyaircohen/digital-reality-me-web/pages
-dig +short me.thedigitalreality.app CNAME
-dig +short thedigitalreality.app CAA
-curl -I https://me.thedigitalreality.app/
-curl -I http://me.thedigitalreality.app/
+dig +short thedigitalreality.net A
+dig +short www.thedigitalreality.net CNAME
+dig +short thedigitalreality.net CAA
+curl -I https://thedigitalreality.net/
+curl -I http://thedigitalreality.net/
 ```
 
-The CNAME should point to `aharonyaircohen.github.io`. If CAA records exist,
+The apex ALIAS and www CNAME should point to `aharonyaircohen.github.io`. If CAA records exist,
 they must allow `letsencrypt.org`. Do not change unrelated DNS records.
 
 If GitHub serves a `*.github.io` certificate for the custom domain, the
@@ -60,7 +63,7 @@ as proof that HTTPS works.
 
 When DNS is correct but issuance is stuck, follow GitHub's documented restart:
 open repository **Settings → Pages**, remove the custom domain, and immediately
-re-add `me.thedigitalreality.app`. Merely saving the same value is not this reset.
+re-add `thedigitalreality.net`. Merely saving the same value is not this reset.
 Allow issuance to finish, then enable **Enforce HTTPS**. Check the API certificate
 state and repeat the HTTPS request. GitHub says availability can take up to an
 hour; avoid repeatedly resetting issuance while it is progressing.
@@ -84,7 +87,7 @@ the owner requests Vercel hosting, and verify the current linked vendor guidance
    static deployment: **Other** preset, repository root, no install/build
    commands, output directory `.`.
 2. Test the Vercel URL before changing DNS: desktop/mobile, assets, article pages, and custom 404 behavior. Keep the working Pages deployment available.
-3. Add the custom domain and replace only the `me` CNAME with the target Vercel
+3. Add the custom domain and replace only the apex and `www` records with the target Vercel
    supplies. Verify certificate validity, HTTPS redirection, and browser loading.
 4. Verify automatic Git deployments, update these docs with the actual setup,
    and deliberately retire or retain Pages. If retaining its default URL, remove
